@@ -46,6 +46,7 @@ export default function ProfilePage() {
     
     const userEmail = session?.user?.email;
     const userName = userEmail ? userEmail.split('@')[0] : 'User';
+    // @ts-ignore
     const userJoined = session?.user?.createdAt ? format(new Date(session.user.createdAt), 'yyyy') : '';
 
 

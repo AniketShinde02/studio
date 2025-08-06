@@ -60,7 +60,7 @@ export const authOptions: AuthOptions = {
       if (user) {
         token.id = user.id;
         // @ts-ignore
-        token.createdAt = user.createdAt;
+        token.createdAt = user.createdAt.toISOString(); // Convert date to string
       }
       return token;
     },
@@ -68,7 +68,7 @@ export const authOptions: AuthOptions = {
       if (token && session.user) {
         session.user.id = token.id as string;
         // @ts-ignore
-        session.user.createdAt = token.createdAt;
+        session.user.createdAt = token.createdAt as string;
       }
       return session;
     },
