@@ -18,9 +18,9 @@ export const authOptions: AuthOptions = {
         if (!credentials?.email || !credentials.password) {
           return null;
         }
-        
+
         await dbConnect();
-        
+
         const user = await User.findOne({ email: credentials.email }).select('+password');
 
         if (!user) {
@@ -35,7 +35,7 @@ export const authOptions: AuthOptions = {
         if (!isPasswordMatch) {
           return null;
         }
-        
+
         return user;
       },
     }),
@@ -51,20 +51,18 @@ export const authOptions: AuthOptions = {
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
-        // On sign in, attach the user's ID to the token
-        token.id = user._id;
+        token.id = user._id.toString();
       }
       return token;
     },
     async session({ session, token }) {
       if (token && session.user) {
-        // Attach the user's ID to the session object
         // @ts-ignore
         session.user.id = token.id;
       }
       return session;
     },
-  }
+  },
 };
 
 const handler = NextAuth(authOptions);
