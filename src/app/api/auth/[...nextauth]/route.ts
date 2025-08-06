@@ -35,11 +35,7 @@ export const authOptions: AuthOptions = {
           return null;
         }
         
-        return {
-          id: user._id.toString(),
-          email: user.email,
-          name: user.name,
-        };
+        return user;
       },
     }),
   ],
@@ -54,7 +50,8 @@ export const authOptions: AuthOptions = {
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
-        token.id = user.id;
+        // @ts-ignore
+        token.id = user._id;
       }
       return token;
     },
