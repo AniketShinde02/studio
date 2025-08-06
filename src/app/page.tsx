@@ -208,8 +208,8 @@ export default function Home() {
             <div className="mt-12 pt-8 border-t border-[var(--border-color)] flex flex-col sm:flex-row justify-between items-center text-sm">
               <p className="text-[var(--text-secondary)]">© 2024 CaptionCraft. All rights reserved.</p>
               <div className="flex gap-6 mt-4 sm:mt-0">
-                <Link className="text-[var(--text-secondary)] hover:text-[var(--primary-color)] transition-colors duration-200" href="#">Terms</Link>
-                <Link className="text-[var(--text-secondary)] hover:text-[var(--primary-color)] transition-colors duration-200" href="#">Privacy Policy</Link>
+                <Link className="text-[var(--text-secondary)] hover:text-[var(--primary-color)] transition-colors duration-200" href="/terms">Terms</Link>
+                <Link className="text-[var(--text-secondary)] hover:text-[var(--primary-color)] transition-colors duration-200" href="/privacy">Privacy Policy</Link>
               </div>
             </div>
           </div>
