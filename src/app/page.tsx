@@ -40,13 +40,15 @@ export default function Home() {
             </nav>
             <div className="hidden md:flex items-center gap-4">
                {session ? (
-                  <Button variant="ghost" asChild>
-                    <Link href="/profile" className="text-base font-medium text-muted-foreground hover:text-primary">Profile</Link>
+                  <Button asChild>
+                    <Link href="/profile">Profile</Link>
                   </Button>
                 ) : (
-                  <Button variant="ghost" onClick={handleAuthAction} className="text-base font-medium text-muted-foreground hover:text-primary">Log In</Button>
+                  <>
+                    <Button variant="ghost" onClick={handleAuthAction} className="text-base font-medium text-muted-foreground hover:text-primary">Log In</Button>
+                    <Button onClick={handleAuthAction}>Sign Up Free</Button>
+                  </>
                 )}
-              <Button onClick={handleAuthAction}>Sign Up Free</Button>
               <ThemeToggle />
             </div>
              <Sheet>
