@@ -75,12 +75,19 @@ export function AuthForm() {
         body: JSON.stringify(values),
       });
 
+      const data = await response.json();
+
       if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.message || "Something went wrong");
+        if (data.message === 'User already exists') {
+          // If user exists, try to sign them in instead.
+          await onSignIn(values);
+        } else {
+          throw new Error(data.message || "Something went wrong");
+        }
+      } else {
+        // If sign up is successful, sign them in.
+        await onSignIn(values);
       }
-      
-      await onSignIn(values);
 
     } catch (error: any) {
       toast({
@@ -103,7 +110,7 @@ export function AuthForm() {
       });
 
       if (result?.error) {
-        throw new Error(result.error);
+        throw new Error("Please check your email and password and try again.");
       }
       
       setOpen(false);
@@ -116,7 +123,7 @@ export function AuthForm() {
       toast({
         variant: "destructive",
         title: "Sign In Failed",
-        description: "Please check your email and password and try again.",
+        description: error.message,
       });
     } finally {
       setIsLoading(false);
@@ -147,7 +154,7 @@ export function AuthForm() {
       <TabsContent value="sign-in">
         <Card className="bg-transparent border-none shadow-none">
           <CardContent className="p-0 pt-6">
-             <Button variant="outline" className="w-full" onClick={onGoogleSignIn} disabled={true || isGoogleLoading || isLoading}>
+             <Button variant="outline" className="w-full" onClick={onGoogleSignIn} disabled={isGoogleLoading || isLoading}>
               {isGoogleLoading ? (
                 <Loader2 className="animate-spin" />
               ) : (
@@ -223,7 +230,7 @@ export function AuthForm() {
       <TabsContent value="sign-up">
         <Card className="bg-transparent border-none shadow-none">
           <CardContent className="p-0 pt-6">
-             <Button variant="outline" className="w-full" onClick={onGoogleSignIn} disabled={true || isGoogleLoading || isLoading}>
+             <Button variant="outline" className="w-full" onClick={onGoogleSignIn} disabled={isGoogleLoading || isLoading}>
                 {isGoogleLoading ? (
                     <Loader2 className="animate-spin" />
                 ) : (
