@@ -98,7 +98,7 @@ export function CaptionGenerator() {
     <div className="space-y-8">
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-          <Card className="bg-gray-800/50 border-2 border-dashed border-gray-600 rounded-2xl p-8 text-center cursor-pointer hover:border-primary transition-all duration-300 group">
+          <Card className="bg-card border-2 border-dashed border-border rounded-2xl p-4 sm:p-8 text-center cursor-pointer hover:border-primary transition-all duration-300 group">
             <CardContent className="p-0">
               <FormField
                 control={form.control}
@@ -115,7 +115,7 @@ export function CaptionGenerator() {
                             onChange={handleImageChange}
                           />
                         {imagePreview ? (
-                          <div className="relative w-full max-w-sm h-64 rounded-xl overflow-hidden">
+                          <div className="relative w-full max-w-sm h-48 sm:h-64 rounded-xl overflow-hidden">
                              <Image
                                 src={imagePreview}
                                 alt="Uploaded preview"
@@ -125,15 +125,15 @@ export function CaptionGenerator() {
                           </div>
                         ) : (
                           <>
-                            <UploadCloud className="w-16 h-16 text-gray-500 group-hover:text-primary transition-colors" />
-                            <p className="text-lg font-semibold text-gray-300">Drag & Drop your image here</p>
-                            <p className="text-gray-400">or</p>
+                            <UploadCloud className="w-12 h-12 sm:w-16 sm:h-16 text-muted-foreground group-hover:text-primary transition-colors" />
+                            <p className="text-lg font-semibold text-foreground">Drag & Drop your image here</p>
+                            <p className="text-muted-foreground">or</p>
                           </>
                         )}
-                        <label htmlFor="file-upload" className="button-secondary bg-gray-700 text-white rounded-xl px-6 py-3 font-semibold hover:bg-gray-600 transition-all duration-300 cursor-pointer">
+                        <label htmlFor="file-upload" className="button-secondary bg-secondary text-secondary-foreground rounded-xl px-6 py-3 font-semibold hover:bg-secondary/80 transition-all duration-300 cursor-pointer">
                           Choose a file
                         </label>
-                        <p className="text-xs text-gray-500">PNG, JPG, GIF up to 10MB</p>
+                        <p className="text-xs text-muted-foreground">PNG, JPG, GIF up to 10MB</p>
                         <FormMessage className="text-primary" />
                       </div>
                     </FormControl>
@@ -145,13 +145,13 @@ export function CaptionGenerator() {
 
           <div className="max-w-2xl mx-auto">
             <p className="text-lg font-medium text-muted-foreground mb-4">Select a mood:</p>
-            <div className="flex flex-wrap justify-center gap-3">
+            <div className="flex flex-wrap justify-center gap-2 sm:gap-3">
               {moods.map((mood) => (
                 <Button
                   key={mood}
                   type="button"
                   variant={selectedMood === mood ? 'default' : 'secondary'}
-                  className="px-5 py-2.5 rounded-full text-sm font-semibold transition-colors duration-300"
+                  className="px-4 py-2 sm:px-5 sm:py-2.5 rounded-full text-sm font-semibold transition-colors duration-300"
                   onClick={() => setSelectedMood(mood === selectedMood ? null : mood)}
                 >
                   {mood}
@@ -182,7 +182,7 @@ export function CaptionGenerator() {
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {isLoading
               ? Array.from({ length: 3 }).map((_, i) => (
-                  <Card key={i} className="bg-gray-800 p-4 space-y-3 animate-pulse rounded-xl min-h-[150px]">
+                  <Card key={i} className="bg-card p-4 space-y-3 animate-pulse rounded-xl min-h-[150px] border">
                     <div className="h-4 bg-muted rounded w-3/4"></div>
                     <div className="h-4 bg-muted rounded w-full"></div>
                     <div className="h-4 bg-muted rounded w-1/2"></div>

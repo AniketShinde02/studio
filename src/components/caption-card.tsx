@@ -34,9 +34,9 @@ export function CaptionCard({ caption }: CaptionCardProps) {
   }, [copied]);
 
   return (
-    <Card className="group bg-gray-800 shadow-md hover:shadow-lg hover:shadow-primary/20 transition-all duration-300 rounded-xl flex flex-col justify-between min-h-[150px]">
+    <Card className="group bg-card shadow-md hover:shadow-lg hover:shadow-primary/20 transition-all duration-300 rounded-xl flex flex-col justify-between min-h-[150px] border">
       <CardContent className="p-4 flex-grow">
-        <p className="text-foreground/90">{caption}</p>
+        <p className="text-card-foreground/90">{caption}</p>
       </CardContent>
       <CardFooter className="p-4 pt-0">
         <Button
