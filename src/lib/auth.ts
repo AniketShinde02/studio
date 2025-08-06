@@ -1,12 +1,11 @@
 
-import NextAuth, { AuthOptions } from 'next-auth';
+import type {NextAuthOptions} from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import dbConnect from '@/lib/db';
 import User from '@/models/User';
 import bcrypt from 'bcryptjs';
-import { Types } from 'mongoose';
 
-export const authOptions: AuthOptions = {
+export const authOptions: NextAuthOptions = {
   providers: [
     CredentialsProvider({
       name: 'Credentials',
@@ -15,12 +14,12 @@ export const authOptions: AuthOptions = {
         password: { label: 'Password', type: 'password' },
       },
       async authorize(credentials) {
+        await dbConnect();
+
         if (!credentials?.email || !credentials.password) {
           console.log('Missing credentials');
           return null;
         }
-
-        await dbConnect();
 
         const user = await User.findOne({ email: credentials.email }).select('+password');
 
@@ -39,7 +38,10 @@ export const authOptions: AuthOptions = {
           return null;
         }
         
-        return user;
+        // Return user object without the password
+        const userObject = user.toObject();
+        delete userObject.password;
+        return userObject;
       },
     }),
   ],
