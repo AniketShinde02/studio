@@ -57,10 +57,6 @@ export function CaptionGenerator() {
       reader.onloadend = () => {
         const result = reader.result as string;
         setImagePreview(result);
-        if (!form.getValues("description")) {
-          const description = file.name.replace(/\.[^/.]+$/, "").replace(/[-_]/g, " ");
-          form.setValue("description", `An image of ${description}`);
-        }
       };
       reader.readAsDataURL(file);
     }
