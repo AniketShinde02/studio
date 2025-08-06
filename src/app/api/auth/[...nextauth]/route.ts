@@ -37,7 +37,6 @@ export const authOptions: AuthOptions = {
           return null;
         }
         
-        // On successful authorization, return a simplified user object
         return {
             id: user._id.toString(),
             email: user.email,
@@ -53,15 +52,6 @@ export const authOptions: AuthOptions = {
     strategy: 'database',
   },
   secret: process.env.NEXTAUTH_SECRET,
-  callbacks: {
-    async session({ session, user }) {
-        if (session.user && user) {
-          // @ts-ignore
-          session.user.id = user.id;
-        }
-        return session;
-      },
-  }
 };
 
 const handler = NextAuth(authOptions);
