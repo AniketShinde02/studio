@@ -39,6 +39,7 @@ export function CaptionGenerator() {
   const [isLoading, setIsLoading] = useState(false);
   const [selectedMood, setSelectedMood] = useState<string | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const { toast } = useToast();
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -51,11 +52,11 @@ export function CaptionGenerator() {
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      setUploadedFile(file);
       const reader = new FileReader();
       reader.onloadend = () => {
         const result = reader.result as string;
         setImagePreview(result);
-        form.setValue("image", result);
         if (!form.getValues("description")) {
           const description = file.name.replace(/\.[^/.]+$/, "").replace(/[-_]/g, " ");
           form.setValue("description", `An image of ${description}`);
@@ -71,7 +72,7 @@ export function CaptionGenerator() {
       return;
     }
 
-    if (!values.image && !values.description) {
+    if (!uploadedFile && !values.description) {
       toast({
         variant: "destructive",
         title: "Hold up!",
@@ -82,13 +83,33 @@ export function CaptionGenerator() {
 
     setIsLoading(true);
     setCaptions([]);
+    let imageUrl = '';
+
     try {
+       if (uploadedFile) {
+        const formData = new FormData();
+        formData.append('file', uploadedFile);
+
+        const uploadResponse = await fetch('/api/upload', {
+          method: 'POST',
+          body: formData,
+        });
+
+        const uploadData = await uploadResponse.json();
+
+        if (!uploadResponse.ok || !uploadData.success) {
+          throw new Error(uploadData.message || 'Image upload failed.');
+        }
+        imageUrl = uploadData.url;
+      }
+
+
       const result = await generateCaptions({
         description: values.description,
         mood: selectedMood || undefined,
         // @ts-ignore
         userId: session?.user?.id,
-        imageUrl: imagePreview || undefined,
+        imageUrl: imageUrl || undefined,
       });
       if (result && result.captions) {
         setCaptions(result.captions);
@@ -99,12 +120,12 @@ export function CaptionGenerator() {
           description: "Couldn't generate captions. Please try again.",
         });
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error(error);
       toast({
         variant: "destructive",
         title: "Uh oh! Something went wrong.",
-        description: "An error occurred while generating captions. Please try again.",
+        description: error.message || "An error occurred. Please try again.",
       });
     } finally {
       setIsLoading(false);
