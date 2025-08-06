@@ -1,14 +1,11 @@
 
 import NextAuth, { AuthOptions } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
-import dbConnect, { clientPromise } from '@/lib/db';
+import dbConnect from '@/lib/db';
 import User from '@/models/User';
 import bcrypt from 'bcryptjs';
-import { MongoDBAdapter } from "@auth/mongodb-adapter"
-import { Adapter } from 'next-auth/adapters';
 
 export const authOptions: AuthOptions = {
-  adapter: MongoDBAdapter(clientPromise) as Adapter,
   providers: [
     CredentialsProvider({
       name: 'Credentials',
@@ -38,24 +35,34 @@ export const authOptions: AuthOptions = {
           return null;
         }
         
-        return user;
+        return {
+          id: user._id.toString(),
+          email: user.email,
+          name: user.name,
+        };
       },
     }),
   ],
   pages: {
     signIn: '/',
-    error: '/api/auth/error', // This is the default, but explicitly stating it can help debugging
+    error: '/api/auth/error',
   },
   session: {
-    strategy: 'database',
+    strategy: 'jwt',
   },
   secret: process.env.NEXTAUTH_SECRET,
   callbacks: {
-    async session({ session, user }) {
-      // The user object here is the one from the database session.
-      // We can add the user ID to the session object.
-      // @ts-ignore
-      session.user.id = user.id;
+    async jwt({ token, user }) {
+      if (user) {
+        token.id = user.id;
+      }
+      return token;
+    },
+    async session({ session, token }) {
+      if (token && session.user) {
+        // @ts-ignore
+        session.user.id = token.id;
+      }
       return session;
     },
   }
