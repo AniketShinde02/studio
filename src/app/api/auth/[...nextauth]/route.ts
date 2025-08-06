@@ -14,32 +14,32 @@ export const authOptions: AuthOptions = {
         password: { label: 'Password', type: 'password' },
       },
       async authorize(credentials) {
+        await dbConnect();
+
+        if (!credentials?.email || !credentials.password) {
+            return null;
+        }
+
         try {
-          await dbConnect();
+            const user = await User.findOne({ email: credentials.email }).select('+password');
 
-          if (!credentials?.email || !credentials.password) {
-            return null;
-          }
+            if (!user) {
+              return null; // User not found
+            }
 
-          const user = await User.findOne({ email: credentials.email }).select('+password');
+            const isPasswordMatch = await bcrypt.compare(
+              credentials.password,
+              user.password
+            );
 
-          if (!user) {
-            return null;
-          }
-
-          const isPasswordMatch = await bcrypt.compare(
-            credentials.password,
-            user.password
-          );
-
-          if (!isPasswordMatch) {
-            return null;
-          }
-          
-          return { id: user._id.toString(), email: user.email, createdAt: user.createdAt };
+            if (!isPasswordMatch) {
+              return null; // Passwords don't match
+            }
+            
+            return { id: user._id.toString(), email: user.email, createdAt: user.createdAt };
         } catch (error) {
-          console.error("Authorize error:", error);
-          return null;
+            console.error("Authorization Error: ", error);
+            return null;
         }
       },
     }),
