@@ -22,6 +22,7 @@ export const authOptions: AuthOptions = {
         }
         
         await dbConnect();
+        
         const user = await User.findOne({ email: credentials.email }).select('+password');
 
         if (!user) {
