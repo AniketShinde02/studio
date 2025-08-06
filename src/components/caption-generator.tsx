@@ -217,7 +217,7 @@ export function CaptionGenerator() {
           </div>
           
            <div className="flex flex-col items-center">
-              <Button type="submit" disabled={isLoading} size="default" className="w-full max-w-xs font-bold text-lg rounded-xl transition-all duration-300 transform hover:scale-105 active:scale-100 shadow-lg shadow-primary/30 hover:shadow-primary/50">
+              <Button type="submit" disabled={isLoading} size="lg" className="w-full max-w-xs font-bold text-lg rounded-xl transition-all duration-300 transform hover:scale-105 active:scale-100 shadow-lg shadow-primary/30 hover:shadow-primary/50">
                 {isLoading ? (
                   <>
                     <Loader2 className="mr-2 h-5 w-5 animate-spin" />

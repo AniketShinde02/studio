@@ -17,7 +17,7 @@ export function AuthModal() {
 
   return (
     <Dialog open={isOpen} onOpenChange={setOpen}>
-      <DialogContent className="sm:max-w-md bg-background border-border/50 p-0">
+      <DialogContent className="sm:max-w-md bg-background p-0">
         <div className="flex flex-col items-center justify-center p-8 space-y-4 text-center">
             <Sparkles className="h-12 w-12 text-primary" />
             <DialogHeader>

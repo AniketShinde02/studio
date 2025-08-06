@@ -4,23 +4,14 @@
 
 @layer base {
   :root {
-    --primary-color: #6366F1;
-    --secondary-color: #EC4899;
-    --background-color: #0B1120;
-    --surface-color: #171F32;
-    --text-primary: #F1F5F9;
-    --text-secondary: #94A3B8;
-    --accent-color: #38BDF8;
-    --border-color: #334155;
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
 
-    --background: 222 84% 4.9%;
-    --foreground: 210 40% 98%;
-
-    --card: 222 84% 4.9%;
-    --card-foreground: 210 40% 98%;
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
  
-    --popover: 222 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
  
     --primary: 244 89% 65%;
     --primary-foreground: 210 40% 98%;
@@ -28,18 +19,18 @@
     --secondary: 336 81% 64%;
     --secondary-foreground: 210 40% 98%;
  
-    --muted: 217 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
  
     --accent: 199 98% 57%;
     --accent-foreground: 210 40% 98%;
  
-    --destructive: 0 62.8% 30.6%;
+    --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
 
-    --border: 216 34% 17%;
-    --input: 216 34% 17%;
-    --ring: 244 89% 65%;
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 222.2 84% 4.9%;
  
     --radius: 0.5rem;
   }
@@ -69,8 +60,8 @@
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 210 40% 98%;
  
-    --border: 216 34% 17%;
-    --input: 216 34% 17%;
+    --border: 217 32.6% 17.5%;
+    --input: 217 32.6% 17.5%;
     --ring: 244 89% 65%;
   }
 }
@@ -83,12 +74,12 @@
     @apply bg-background text-foreground;
   }
   .gradient-text {
-    @apply bg-gradient-to-r from-[var(--primary-color)] via-[var(--secondary-color)] to-[var(--accent-color)] text-transparent bg-clip-text;
+    @apply bg-gradient-to-r from-primary via-secondary to-accent text-transparent bg-clip-text;
   }
   .button-primary {
-      @apply bg-gradient-to-r from-[var(--primary-color)] to-[var(--secondary-color)] text-white rounded-xl px-7 py-3.5 font-bold text-base shadow-lg hover:shadow-xl hover:scale-105 transform transition-all duration-300 ease-in-out;
+      @apply bg-gradient-to-r from-primary to-secondary text-white rounded-xl px-7 py-3.5 font-bold text-base shadow-lg hover:shadow-xl hover:scale-105 transform transition-all duration-300 ease-in-out;
   }
   .button-secondary {
-        @apply bg-[var(--surface-color)] text-[var(--text-primary)] rounded-xl px-7 py-3.5 font-semibold hover:bg-slate-700 transition-all duration-300 border border-[var(--border-color)];
+        @apply bg-card text-foreground rounded-xl px-7 py-3.5 font-semibold hover:bg-muted transition-all duration-300 border;
   }
 }
