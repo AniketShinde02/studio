@@ -4,6 +4,7 @@ import CredentialsProvider from 'next-auth/providers/credentials';
 import dbConnect from '@/lib/db';
 import User from '@/models/User';
 import bcrypt from 'bcryptjs';
+import { Types } from 'mongoose';
 
 export const authOptions: AuthOptions = {
   providers: [
@@ -50,13 +51,14 @@ export const authOptions: AuthOptions = {
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
-        // @ts-ignore
+        // On sign in, attach the user's ID to the token
         token.id = user._id;
       }
       return token;
     },
     async session({ session, token }) {
       if (token && session.user) {
+        // Attach the user's ID to the session object
         // @ts-ignore
         session.user.id = token.id;
       }
