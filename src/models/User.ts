@@ -17,6 +17,7 @@ const UserSchema = new mongoose.Schema({
     type: String,
     required: [true, 'Please add a password.'],
     minlength: 6,
+    select: false, // Keep password hidden by default
   },
   emailVerified: Date,
   image: String,

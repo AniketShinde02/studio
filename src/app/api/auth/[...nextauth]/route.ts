@@ -22,7 +22,7 @@ export const authOptions: AuthOptions = {
         }
         
         await dbConnect();
-        const user = await User.findOne({ email: credentials.email });
+        const user = await User.findOne({ email: credentials.email }).select('+password');
 
         if (!user) {
           return null;
@@ -37,7 +37,12 @@ export const authOptions: AuthOptions = {
           return null;
         }
         
-        return user;
+        // On successful authorization, return a simplified user object
+        return {
+            id: user._id.toString(),
+            email: user.email,
+            name: user.name,
+        };
       },
     }),
   ],
@@ -50,12 +55,13 @@ export const authOptions: AuthOptions = {
   secret: process.env.NEXTAUTH_SECRET,
   callbacks: {
     async session({ session, user }) {
-        if (user) {
+        if (session.user && user) {
+          // @ts-ignore
           session.user.id = user.id;
         }
         return session;
       },
-  },
+  }
 };
 
 const handler = NextAuth(authOptions);
