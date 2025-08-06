@@ -39,6 +39,7 @@ export const authOptions: NextAuthOptions = {
         }
         
         const userObject = user.toObject();
+        // It's a good practice to remove the password before returning
         delete userObject.password;
         return userObject;
       },
@@ -55,6 +56,7 @@ export const authOptions: NextAuthOptions = {
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
+        // On sign in, user object is available. Persist the user id to the token.
         // @ts-ignore
         token.id = user._id.toString();
         token.email = user.email;
@@ -64,6 +66,8 @@ export const authOptions: NextAuthOptions = {
       return token;
     },
     async session({ session, token }) {
+      // The session callback is called whenever a session is checked.
+      // We transfer the id from the token to the session object.
       if (token && session.user) {
         session.user.id = token.id as string;
         session.user.email = token.email as string;
