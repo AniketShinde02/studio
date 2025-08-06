@@ -38,7 +38,6 @@ export const authOptions: NextAuthOptions = {
           return null;
         }
         
-        // Return user object without the password
         const userObject = user.toObject();
         delete userObject.password;
         return userObject;
@@ -58,6 +57,8 @@ export const authOptions: NextAuthOptions = {
       if (user) {
         token.id = user._id.toString();
         token.email = user.email;
+        // @ts-ignore
+        token.createdAt = user.createdAt;
       }
       return token;
     },
@@ -65,6 +66,8 @@ export const authOptions: NextAuthOptions = {
       if (token && session.user) {
         session.user.id = token.id as string;
         session.user.email = token.email as string;
+        // @ts-ignore
+        session.user.createdAt = token.createdAt;
       }
       return session;
     },
