@@ -57,14 +57,14 @@ export default function Home() {
               </div>
               <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
                 <div className="bg-card p-6 rounded-2xl shadow-lg hover:shadow-primary/20 transition-all duration-300 border border-transparent hover:border-primary/30 flex flex-col items-start text-left">
-                  <div className="bg-green-500/10 text-green-400 rounded-lg w-12 h-12 flex items-center justify-center mb-4 border border-green-500/20">
+                  <div className="bg-lime-500/10 text-lime-400 rounded-lg w-12 h-12 flex items-center justify-center mb-4 border border-lime-500/20">
                     <Bot className="h-6 w-6" />
                   </div>
                   <h3 className="font-bold text-lg mb-2 text-card-foreground">AI-Powered</h3>
                   <p className="text-sm text-muted-foreground">Leverage advanced AI for unique, context-aware captions.</p>
                 </div>
                 <div className="bg-card p-6 rounded-2xl shadow-lg hover:shadow-primary/20 transition-all duration-300 border border-transparent hover:border-primary/30 flex flex-col items-start text-left">
-                  <div className="bg-purple-500/10 text-purple-400 rounded-lg w-12 h-12 flex items-center justify-center mb-4 border border-purple-500/20">
+                  <div className="bg-pink-500/10 text-pink-400 rounded-lg w-12 h-12 flex items-center justify-center mb-4 border border-pink-500/20">
                     <Palette className="h-6 w-6" />
                   </div>
                   <h3 className="font-bold text-lg mb-2 text-card-foreground">Mood Matching</h3>
@@ -78,7 +78,7 @@ export default function Home() {
                   <p className="text-sm text-muted-foreground">Get smart emoji and trending hashtag suggestions.</p>
                 </div>
                 <div className="bg-card p-6 rounded-2xl shadow-lg hover:shadow-primary/20 transition-all duration-300 border border-transparent hover:border-primary/30 flex flex-col items-start text-left">
-                  <div className="bg-pink-500/10 text-pink-400 rounded-lg w-12 h-12 flex items-center justify-center mb-4 border border-pink-500/20">
+                  <div className="bg-purple-500/10 text-purple-400 rounded-lg w-12 h-12 flex items-center justify-center mb-4 border border-purple-500/20">
                     <Pencil className="h-6 w-6" />
                   </div>
                   <h3 className="font-bold text-lg mb-2 text-card-foreground">Customizable</h3>
