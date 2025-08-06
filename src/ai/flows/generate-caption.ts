@@ -5,7 +5,7 @@
  *
  * - generateCaptions - A function that generates captions and saves them.
  * - GenerateCaptionsInput - The input type for the generateCaptions function.
- * - GenerateCaptionsOutput - The return type for the generateCaptions function.
+ * - GenerateCaptionsOutput - The return type for the generateCaptionsOutput function.
  */
 
 import {ai} from '@/ai/genkit';
