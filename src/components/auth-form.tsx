@@ -137,6 +137,7 @@ export function AuthForm() {
     setIsGoogleLoading(true);
     try {
       await signIn("google", { callbackUrl: "/" });
+      setOpen(false);
     } catch (error) {
       toast({
         variant: "destructive",
