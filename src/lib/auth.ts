@@ -55,6 +55,7 @@ export const authOptions: NextAuthOptions = {
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
+        // @ts-ignore
         token.id = user._id.toString();
         token.email = user.email;
         // @ts-ignore
