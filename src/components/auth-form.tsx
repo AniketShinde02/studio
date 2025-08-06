@@ -110,7 +110,7 @@ export function AuthForm() {
       });
 
       if (result?.error) {
-        throw new Error("Please check your email and password and try again.");
+        throw new Error("Invalid email or password. Please try again.");
       }
       
       setOpen(false);

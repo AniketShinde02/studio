@@ -22,28 +22,33 @@ export const authOptions: AuthOptions = {
         password: { label: 'Password', type: 'password' },
       },
       async authorize(credentials) {
-        await dbConnect();
+        try {
+          await dbConnect();
 
-        if (!credentials?.email || !credentials.password) {
+          if (!credentials?.email || !credentials.password) {
+            return null;
+          }
+
+          const user = await User.findOne({ email: credentials.email }).select('+password');
+
+          if (!user) {
+            return null;
+          }
+
+          const isPasswordMatch = await bcrypt.compare(
+            credentials.password,
+            user.password
+          );
+
+          if (!isPasswordMatch) {
+            return null;
+          }
+          
+          return { id: user._id.toString(), email: user.email, name: user.name };
+        } catch (error) {
+          console.error("Authorize error:", error);
           return null;
         }
-
-        const user = await User.findOne({ email: credentials.email }).select('+password');
-
-        if (!user) {
-          return null;
-        }
-
-        const isPasswordMatch = await bcrypt.compare(
-          credentials.password,
-          user.password
-        );
-
-        if (!isPasswordMatch) {
-          return null;
-        }
-        
-        return { id: user._id.toString(), email: user.email, name: user.name };
       },
     }),
   ],
@@ -55,29 +60,36 @@ export const authOptions: AuthOptions = {
   },
   secret: process.env.NEXTAUTH_SECRET,
   callbacks: {
-    async signIn({ user, account, profile }) {
-      await dbConnect();
+    async signIn({ user, account }) {
       if (account?.provider === 'google') {
-        let dbUser = await User.findOne({ email: user.email });
-        if (!dbUser) {
-          dbUser = await User.create({
-            email: user.email,
-            name: user.name,
-            password: await bcrypt.hash(Math.random().toString(36).slice(-8), 10),
-          });
+        await dbConnect();
+        try {
+            let dbUser = await User.findOne({ email: user.email });
+            if (!dbUser) {
+              const randomPassword = Math.random().toString(36).slice(-8);
+              dbUser = await User.create({
+                email: user.email,
+                name: user.name,
+                password: randomPassword, 
+              });
+            }
+            user.id = dbUser._id.toString();
+            return true;
+        } catch (error) {
+            console.error("Google sign-in error:", error);
+            return false;
         }
-        user.id = dbUser._id.toString();
       }
       return true;
     },
-    async jwt({ token, user, account }) {
+    async jwt({ token, user }) {
       if (user) {
         token.id = user.id;
       }
       return token;
     },
     async session({ session, token }: any) {
-      if (session.user) {
+      if (token && session.user) {
         session.user.id = token.id;
       }
       return session;
