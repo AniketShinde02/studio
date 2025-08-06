@@ -1,11 +1,14 @@
 
 import NextAuth, { AuthOptions } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
-import dbConnect from '@/lib/db';
+import dbConnect, { clientPromise } from '@/lib/db';
 import User from '@/models/User';
 import bcrypt from 'bcryptjs';
+import { MongoDBAdapter } from "@auth/mongodb-adapter"
+import { Adapter } from 'next-auth/adapters';
 
 export const authOptions: AuthOptions = {
+  adapter: MongoDBAdapter(clientPromise) as Adapter,
   providers: [
     CredentialsProvider({
       name: 'Credentials',
@@ -18,33 +21,23 @@ export const authOptions: AuthOptions = {
           return null;
         }
         
-        try {
-          await dbConnect();
-          const user = await User.findOne({ email: credentials.email }).select('+password');
+        await dbConnect();
+        const user = await User.findOne({ email: credentials.email });
 
-          if (!user) {
-            // User not found
-            return null;
-          }
-
-          const isPasswordMatch = await bcrypt.compare(
-            credentials.password,
-            user.password
-          );
-
-          if (!isPasswordMatch) {
-            // Passwords don't match
-            return null;
-          }
-          
-          // Return user object if everything is correct
-          return { id: user._id.toString(), email: user.email, createdAt: user.createdAt };
-
-        } catch (error) {
-            console.error("Authorization Error: ", error);
-            // Return null on any error to prevent server crashes
-            return null;
+        if (!user) {
+          return null;
         }
+
+        const isPasswordMatch = await bcrypt.compare(
+          credentials.password,
+          user.password
+        );
+
+        if (!isPasswordMatch) {
+          return null;
+        }
+        
+        return user;
       },
     }),
   ],
@@ -52,26 +45,16 @@ export const authOptions: AuthOptions = {
     signIn: '/',
   },
   session: {
-    strategy: 'jwt' as const,
+    strategy: 'database',
   },
   secret: process.env.NEXTAUTH_SECRET,
   callbacks: {
-    async jwt({ token, user }) {
-      if (user) {
-        token.id = user.id;
-        // @ts-ignore
-        token.createdAt = user.createdAt.toISOString(); // Convert date to string
-      }
-      return token;
-    },
-    async session({ session, token }) {
-      if (token && session.user) {
-        session.user.id = token.id as string;
-        // @ts-ignore
-        session.user.createdAt = token.createdAt as string;
-      }
-      return session;
-    },
+    async session({ session, user }) {
+        if (user) {
+          session.user.id = user.id;
+        }
+        return session;
+      },
   },
 };
 
