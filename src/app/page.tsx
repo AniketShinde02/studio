@@ -23,7 +23,7 @@ export default function Home() {
           <div className="flex items-center gap-2 sm:gap-4">
             <ThemeToggle />
             <Link href="/auth">
-              <Button>Get Started</Button>
+              <Button>Generate Your Caption</Button>
             </Link>
           </div>
         </div>
@@ -33,7 +33,7 @@ export default function Home() {
         <section className="py-20 md:py-32 text-center">
           <div className="container mx-auto px-4 sm:px-6">
             <h1 className="text-4xl md:text-6xl font-extrabold mb-4 leading-tight">
-              Generate <span className="gradient-text">Lit Captions</span> in a Snap
+             Viral captions, <span className="gradient-text">Gen Z vibes.</span>
             </h1>
             <p className="text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto mb-10">
               AI that gets your vibe. Drop an image, get fire captions with the right emojis &amp; tags. Level up your social media game, no cap.
@@ -116,7 +116,7 @@ export default function Home() {
                 <Sparkles className="h-8 w-8 text-primary" />
                 <h1 className="text-2xl font-bold text-foreground">CaptionCraft</h1>
               </div>
-              <p className="text-muted-foreground text-sm">The ultimate tool for Gen Z creators.</p>
+              <p className="text-muted-foreground text-sm">Made for Gen Z, by Gen Z</p>
             </div>
             <div className="md:col-span-2">
               <div className="text-center md:text-right">

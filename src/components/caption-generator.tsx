@@ -14,14 +14,16 @@ import {
   FormField,
   FormItem,
   FormMessage,
+  FormLabel,
 } from "@/components/ui/form";
 import { Card, CardContent } from "@/components/ui/card";
 import { generateCaptions } from "@/ai/flows/generate-caption";
 import { CaptionCard } from "./caption-card";
 import { useToast } from "@/hooks/use-toast";
+import { Textarea } from "./ui/textarea";
 
 const formSchema = z.object({
-  description: z.string().optional(),
+  description: z.string().min(1, { message: "Please describe your image or vibe." }),
   image: z.any().optional(),
 });
 
@@ -48,9 +50,10 @@ export function CaptionGenerator() {
       reader.onloadend = () => {
         setImagePreview(reader.result as string);
         form.setValue("image", reader.result);
-        // Create a description from the image file name
-        const description = file.name.replace(/\\.[^/.]+$/, "").replace(/[-_]/g, " ");
-        form.setValue("description", `An image of ${description}`);
+        if (!form.getValues("description")) {
+          const description = file.name.replace(/\\.[^/.]+$/, "").replace(/[-_]/g, " ");
+          form.setValue("description", `An image of ${description}`);
+        }
       };
       reader.readAsDataURL(file);
     }
@@ -70,7 +73,7 @@ export function CaptionGenerator() {
     setCaptions([]);
     try {
       const result = await generateCaptions({
-        description: values.description || 'an image',
+        description: values.description,
         mood: selectedMood || undefined,
       });
       if (result && result.captions) {
@@ -98,65 +101,87 @@ export function CaptionGenerator() {
     <div className="space-y-8">
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-          <Card className="bg-card border-2 border-dashed border-border rounded-2xl p-4 sm:p-8 text-center cursor-pointer hover:border-primary transition-all duration-300 group">
-            <CardContent className="p-0">
-              <FormField
-                control={form.control}
-                name="image"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormControl>
-                      <div className="flex flex-col items-center justify-center space-y-4">
-                         <input
-                            type="file"
-                            id="file-upload"
-                            className="hidden"
-                            accept="image/png, image/jpeg, image/gif"
-                            onChange={handleImageChange}
-                          />
-                        {imagePreview ? (
-                          <div className="relative w-full max-w-sm h-48 sm:h-64 rounded-xl overflow-hidden">
-                             <Image
-                                src={imagePreview}
-                                alt="Uploaded preview"
-                                layout="fill"
-                                objectFit="cover"
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
+            <div className="space-y-4">
+               <Card className="bg-card border-2 border-dashed border-border rounded-2xl p-4 sm:p-8 text-center cursor-pointer hover:border-primary transition-all duration-300 group h-full flex flex-col justify-center">
+                <CardContent className="p-0">
+                  <FormField
+                    control={form.control}
+                    name="image"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormControl>
+                          <div className="flex flex-col items-center justify-center space-y-4">
+                             <input
+                                type="file"
+                                id="file-upload"
+                                className="hidden"
+                                accept="image/png, image/jpeg, image/gif"
+                                onChange={handleImageChange}
                               />
+                            {imagePreview ? (
+                              <div className="relative w-full max-w-sm h-48 sm:h-64 rounded-xl overflow-hidden">
+                                 <Image
+                                    src={imagePreview}
+                                    alt="Uploaded preview"
+                                    layout="fill"
+                                    objectFit="cover"
+                                  />
+                              </div>
+                            ) : (
+                              <>
+                                <UploadCloud className="w-12 h-12 sm:w-16 sm:h-16 text-muted-foreground group-hover:text-primary transition-colors" />
+                                <p className="text-lg font-semibold text-foreground">Drag & Drop your image</p>
+                                <p className="text-muted-foreground">or</p>
+                              </>
+                            )}
+                            <label htmlFor="file-upload" className="button-secondary bg-secondary text-secondary-foreground rounded-xl px-6 py-3 font-semibold hover:bg-secondary/80 transition-all duration-300 cursor-pointer">
+                              Choose a file
+                            </label>
+                            <p className="text-xs text-muted-foreground">PNG, JPG, GIF up to 10MB</p>
                           </div>
-                        ) : (
-                          <>
-                            <UploadCloud className="w-12 h-12 sm:w-16 sm:h-16 text-muted-foreground group-hover:text-primary transition-colors" />
-                            <p className="text-lg font-semibold text-foreground">Drag & Drop your image here</p>
-                            <p className="text-muted-foreground">or</p>
-                          </>
-                        )}
-                        <label htmlFor="file-upload" className="button-secondary bg-secondary text-secondary-foreground rounded-xl px-6 py-3 font-semibold hover:bg-secondary/80 transition-all duration-300 cursor-pointer">
-                          Choose a file
-                        </label>
-                        <p className="text-xs text-muted-foreground">PNG, JPG, GIF up to 10MB</p>
-                        <FormMessage className="text-primary" />
-                      </div>
-                    </FormControl>
-                  </FormItem>
-                )}
-              />
-            </CardContent>
-          </Card>
-
-          <div className="max-w-2xl mx-auto">
-            <p className="text-lg font-medium text-muted-foreground mb-4">Select a mood:</p>
-            <div className="flex flex-wrap justify-center gap-2 sm:gap-3">
-              {moods.map((mood) => (
-                <Button
-                  key={mood}
-                  type="button"
-                  variant={selectedMood === mood ? 'default' : 'secondary'}
-                  className="px-4 py-2 sm:px-5 sm:py-2.5 rounded-full text-sm font-semibold transition-colors duration-300"
-                  onClick={() => setSelectedMood(mood === selectedMood ? null : mood)}
-                >
-                  {mood}
-                </Button>
-              ))}
+                        </FormControl>
+                         <FormMessage className="text-primary text-center pt-2" />
+                      </FormItem>
+                    )}
+                  />
+                </CardContent>
+              </Card>
+            </div>
+            <div className="space-y-6">
+               <FormField
+                  control={form.control}
+                  name="description"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-lg font-medium text-muted-foreground text-left block mb-4">What's your vibe today?</FormLabel>
+                      <FormControl>
+                        <Textarea
+                          placeholder="e.g., A golden retriever puppy playing in a field of flowers on a sunny day."
+                          className="min-h-[150px] bg-card border-border rounded-2xl p-4"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage className="text-primary" />
+                    </FormItem>
+                  )}
+                />
+               <div>
+                  <p className="text-lg font-medium text-muted-foreground mb-4">Select a mood (optional):</p>
+                  <div className="flex flex-wrap justify-start gap-2 sm:gap-3">
+                    {moods.map((mood) => (
+                      <Button
+                        key={mood}
+                        type="button"
+                        variant={selectedMood === mood ? 'default' : 'secondary'}
+                        className="px-4 py-2 sm:px-5 sm:py-2.5 rounded-full text-sm font-semibold transition-colors duration-300"
+                        onClick={() => setSelectedMood(mood === selectedMood ? null : mood)}
+                      >
+                        {mood}
+                      </Button>
+                    ))}
+                  </div>
+              </div>
             </div>
           </div>
           

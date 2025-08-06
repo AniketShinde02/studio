@@ -30,6 +30,7 @@ import {
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { auth } from "@/lib/firebase";
+import Link from "next/link";
 
 const signUpSchema = z.object({
   email: z.string().email({ message: "Invalid email address." }),
@@ -160,6 +161,11 @@ export function AuthForm() {
                     </FormItem>
                   )}
                 />
+                 <div className="text-right">
+                    <Link href="mailto:support@captioncraft.ai" className="text-sm text-muted-foreground hover:text-primary">
+                      Forgot Password?
+                    </Link>
+                  </div>
                 <Button type="submit" disabled={isLoading} className="w-full">
                   {isLoading ? (
                     <Loader2 className="animate-spin" />
