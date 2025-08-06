@@ -14,31 +14,35 @@ export const authOptions: AuthOptions = {
         password: { label: 'Password', type: 'password' },
       },
       async authorize(credentials) {
-        await dbConnect();
-
         if (!credentials?.email || !credentials.password) {
-            return null;
+          return null;
         }
-
+        
         try {
-            const user = await User.findOne({ email: credentials.email }).select('+password');
+          await dbConnect();
+          const user = await User.findOne({ email: credentials.email }).select('+password');
 
-            if (!user) {
-              return null; // User not found
-            }
+          if (!user) {
+            // User not found
+            return null;
+          }
 
-            const isPasswordMatch = await bcrypt.compare(
-              credentials.password,
-              user.password
-            );
+          const isPasswordMatch = await bcrypt.compare(
+            credentials.password,
+            user.password
+          );
 
-            if (!isPasswordMatch) {
-              return null; // Passwords don't match
-            }
-            
-            return { id: user._id.toString(), email: user.email, createdAt: user.createdAt };
+          if (!isPasswordMatch) {
+            // Passwords don't match
+            return null;
+          }
+          
+          // Return user object if everything is correct
+          return { id: user._id.toString(), email: user.email, createdAt: user.createdAt };
+
         } catch (error) {
             console.error("Authorization Error: ", error);
+            // Return null on any error to prevent server crashes
             return null;
         }
       },
@@ -65,7 +69,6 @@ export const authOptions: AuthOptions = {
         session.user.id = token.id as string;
         // @ts-ignore
         session.user.createdAt = token.createdAt;
-
       }
       return session;
     },
@@ -75,5 +78,3 @@ export const authOptions: AuthOptions = {
 const handler = NextAuth(authOptions);
 
 export { handler as GET, handler as POST };
-
-    
