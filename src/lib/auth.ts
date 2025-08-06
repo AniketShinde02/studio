@@ -1,3 +1,4 @@
+
 'use server';
 
 import NextAuth, { AuthOptions } from 'next-auth';
@@ -5,6 +6,8 @@ import CredentialsProvider from 'next-auth/providers/credentials';
 import dbConnect from '@/lib/db';
 import User from '@/models/User';
 import bcrypt from 'bcryptjs';
+import { MongoDBAdapter } from "@auth/mongodb-adapter";
+import { clientPromise } from "./db";
 
 export const authOptions: AuthOptions = {
   providers: [
@@ -35,8 +38,13 @@ export const authOptions: AuthOptions = {
         if (!isPasswordMatch) {
           return null;
         }
+        
+        // Convert the Mongoose document to a plain object
+        const userObject = user.toObject();
+        // Remove password from the returned object
+        delete userObject.password;
 
-        return user;
+        return userObject;
       },
     }),
   ],
@@ -51,6 +59,7 @@ export const authOptions: AuthOptions = {
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
+        // @ts-ignore
         token.id = user._id.toString();
       }
       return token;
