@@ -63,7 +63,6 @@ export const authOptions: AuthOptions = {
           dbUser = await User.create({
             email: user.email,
             name: user.name,
-            // Create a random hashed password for Google users as it's required by schema
             password: await bcrypt.hash(Math.random().toString(36).slice(-8), 10),
           });
         }
