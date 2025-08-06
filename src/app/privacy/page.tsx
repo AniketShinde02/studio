@@ -1,4 +1,6 @@
 
+"use client"
+
 import Link from 'next/link';
 import { Sparkles, Menu } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -157,5 +159,3 @@ export default function PrivacyPage() {
     </div>
   );
 }
-
-    
