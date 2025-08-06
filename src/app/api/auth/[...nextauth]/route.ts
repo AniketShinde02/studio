@@ -4,6 +4,9 @@ import GoogleProvider from 'next-auth/providers/google';
 import dbConnect from '@/lib/db';
 import User from '@/models/User';
 import bcrypt from 'bcryptjs';
+import { config } from 'dotenv';
+
+config();
 
 export const authOptions: AuthOptions = {
   providers: [
@@ -51,7 +54,7 @@ export const authOptions: AuthOptions = {
   session: {
     strategy: 'jwt' as const,
   },
-  secret: process.env.JWT_SECRET,
+  secret: process.env.NEXTAUTH_SECRET,
   callbacks: {
     async signIn({ user, account, profile }) {
       if (account?.provider === 'google') {
