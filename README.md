@@ -21,6 +21,59 @@ Welcome to CaptionCraft! This is a powerful web application designed to help you
 
 ---
 
+## 📂 Project Structure Explained
+
+Understanding the layout of the project is key to understanding how it works. Here is a high-level overview of the directory structure and the purpose of each key file.
+
+```
+/
+├── public/                 # Static assets (images, fonts) - not used in this project
+├── src/
+│   ├── ai/
+│   │   ├── flows/
+│   │   │   └── generate-caption.ts # The core AI logic for generating captions
+│   │   ├── dev.ts            # Entry point for running Genkit locally
+│   │   └── genkit.ts         # Configuration for the Genkit AI framework
+│   ├── app/
+│   │   ├── api/
+│   │   │   ├── auth/
+│   │   │   │   ├── [...nextauth]/route.ts # Handles all NextAuth.js authentication routes
+│   │   │   │   └── register/route.ts      # API endpoint for new user registration
+│   │   │   ├── posts/route.ts      # API endpoint for fetching user's saved posts
+│   │   │   └── upload/route.ts     # API endpoint for handling image uploads
+│   │   ├── (pages)/          # All the main pages of the application
+│   │   │   ├── about/page.tsx
+│   │   │   ├── contact/page.tsx
+│   │   │   ├── profile/page.tsx
+│   │   │   └── ...
+│   │   ├── globals.css       # Global styles and Tailwind CSS theme configuration
+│   │   └── layout.tsx        # The root layout for the entire application
+│   ├── components/
+│   │   ├── ui/               # Reusable UI components from ShadCN (Button, Card, etc.)
+│   │   ├── auth-form.tsx     # The sign-in and sign-up form component
+│   │   ├── auth-modal.tsx    # The modal window that contains the auth form
+│   │   ├── caption-card.tsx  # Component to display a single generated caption
+│   │   └── caption-generator.tsx # The main interactive component on the homepage
+│   ├── context/
+│   │   └── AuthModalContext.tsx # Manages the global state for the authentication modal
+│   ├── hooks/
+│   │   ├── use-mobile.tsx    # Custom hook to detect if the user is on a mobile device
+│   │   └── use-toast.ts      # Custom hook for showing notification popups (toasts)
+│   ├── lib/
+│   │   ├── auth.ts           # The heart of the authentication system (NextAuth.js options)
+│   │   ├── db.ts             # Handles the connection to the MongoDB database
+│   │   └── utils.ts          # Utility functions, primarily for styling
+│   └── models/
+│       ├── Post.ts           # Mongoose schema defining the structure of a Post
+│       └── User.ts           # Mongoose schema defining the structure of a User
+├── .env                      # **CRITICAL**: Stores all secret keys and environment variables
+├── next.config.ts            # Configuration file for the Next.js framework
+├── package.json              # Lists all project dependencies and scripts
+└── tailwind.config.ts        # Configuration file for Tailwind CSS
+```
+
+---
+
 ## 🛠️ How It Works: A Look Inside the Magic Box
 
 Think of CaptionCraft as a team of little robots working together. Here’s who does what:
@@ -29,8 +82,8 @@ Think of CaptionCraft as a team of little robots working together. Here’s who 
 
 This is everything you see and interact with in your browser. It's built to be fast, beautiful, and easy to use.
 
-- **Framework**: **Next.js** with **React**. This is like the blueprint and frame of our application, making it structured and interactive.
-- **Styling**: **Tailwind CSS** & **ShadCN UI**. These are our interior designers. They provide the beautiful buttons, cards, and overall modern look and feel of the app, ensuring it works perfectly on both your computer and your phone.
+- **Framework**: **Next.js** with **React**. This is like the blueprint and frame of our application, making it structured and interactive. The files in `src/app/(pages)` define the different pages a user can visit. `src/app/layout.tsx` is the main template that wraps every page.
+- **Styling**: **Tailwind CSS** & **ShadCN UI**. These are our interior designers. They provide the beautiful buttons, cards, and overall modern look and feel of the app, ensuring it works perfectly on both your computer and your phone. The configuration is in `src/app/globals.css` and `tailwind.config.ts`. The individual, reusable components (like `Button.tsx`, `Card.tsx`) live in `src/components/ui/`.
 
 ### 2. **The Brains of the Operation (The "Back Room")**
 
@@ -38,16 +91,16 @@ This part runs on a powerful computer (a server) and does all the heavy lifting.
 
 - **AI Caption Generation**: `src/ai/flows/generate-caption.ts`
   - **What it is**: This is our master wordsmith. It's a special instruction file for our AI.
-  - **How it works**: When you ask for captions, this file takes your description and mood, packages it up, and sends it to **Genkit**, which is our direct line to the powerful **Google Gemini AI**. The AI thinks for a moment and then sends back a list of creative captions.
+  - **How it works**: When you ask for captions, this file takes your description and mood, packages it up, and sends it to **Genkit** (`src/ai/genkit.ts`), which is our direct line to the powerful **Google Gemini AI**. The AI thinks for a moment and then sends back a list of creative captions.
   - **Saving Your Work**: If you are logged in, this flow also saves the generated captions to your user account in the database.
 
 - **User Authentication (The "Security Guard")**: `src/lib/auth.ts` & `src/app/api/auth/**`
   - **What it is**: This system manages everything related to user accounts: signing up, logging in, and keeping your session secure.
-  - **How it works**: We use a library called **NextAuth.js**. When you sign in, it checks your email and password against the database. If they match, it gives you a special, secure "key" (a JWT token) that your browser holds onto. This key proves who you are as you navigate the app, so you don't have to log in on every page.
+  - **How it works**: We use a library called **NextAuth.js**. When you sign in, it uses the logic in `src/lib/auth.ts`. This file tells NextAuth how to check your email and password against the database. If they match, it gives you a special, secure "key" (a JWT token) that your browser holds onto. This key proves who you are as you navigate the app, so you don't have to log in on every page. The `src/app/api/auth/register/route.ts` file provides the endpoint for creating a new account.
 
 - **The Database (The "Filing Cabinet")**: `src/lib/db.ts` & `src/models/**`
   - **What it is**: This is where we store all the important information, like user accounts and saved posts.
-  - **How it works**: We use **MongoDB**, a powerful and flexible database. The `models` files (`User.ts`, `Post.ts`) act as templates, telling the app exactly how the data for each user and post should be structured.
+  - **How it works**: We use **MongoDB**, a powerful and flexible database. The `src/lib/db.ts` file manages the connection to this database. The `models` files (`User.ts`, `Post.ts`) act as templates, telling the app exactly how the data for each user and post should be structured using a library called **Mongoose**.
 
 ---
 
