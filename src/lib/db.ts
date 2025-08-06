@@ -1,3 +1,5 @@
+
+import 'dotenv/config';
 import mongoose, { Mongoose } from 'mongoose';
 import { MongoClient } from 'mongodb';
 
