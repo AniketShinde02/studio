@@ -1,21 +1,19 @@
 
 "use client";
 
-import { useState } from "react";
+import { useAuthModal } from "@/context/AuthModalContext";
 import { CaptionGenerator } from "@/components/caption-generator";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Sparkles, Bot, Palette, Hash, Pencil } from "lucide-react";
 import Link from 'next/link';
 import { ThemeToggle } from "@/components/theme-toggle";
-import { AuthModal } from "@/components/auth-modal";
 
 export default function Home() {
-  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const { setOpen } = useAuthModal();
 
   return (
     <>
-      <AuthModal isOpen={isAuthModalOpen} onOpenChange={setIsAuthModalOpen} />
       <div className="min-h-screen flex flex-col font-sans">
         <header className="bg-background/80 backdrop-blur-sm sticky top-0 z-50">
           <div className="container mx-auto px-4 sm:px-6 py-4 flex justify-between items-center">
@@ -31,7 +29,7 @@ export default function Home() {
             </nav>
             <div className="flex items-center gap-2 sm:gap-4">
               <ThemeToggle />
-              <Button onClick={() => setIsAuthModalOpen(true)}>Generate Your Caption</Button>
+              <Button onClick={() => setOpen(true)}>Generate Your Caption</Button>
             </div>
           </div>
         </header>

@@ -1,8 +1,7 @@
 
 "use client";
 
-import { useState } from "react";
-import { signIn } from "next-auth/react";
+import { useAuthModal } from "@/context/AuthModalContext";
 import {
   Dialog,
   DialogContent,
@@ -13,14 +12,11 @@ import {
 import { AuthForm } from "./auth-form";
 import { Sparkles } from "lucide-react";
 
-interface AuthModalProps {
-  isOpen: boolean;
-  onOpenChange: (isOpen: boolean) => void;
-}
+export function AuthModal() {
+  const { isOpen, setOpen } = useAuthModal();
 
-export function AuthModal({ isOpen, onOpenChange }: AuthModalProps) {
   return (
-    <Dialog open={isOpen} onOpenChange={onOpenChange}>
+    <Dialog open={isOpen} onOpenChange={setOpen}>
       <DialogContent className="sm:max-w-md bg-background border-border/50 p-0">
         <div className="flex flex-col items-center justify-center p-8 space-y-4 text-center">
             <Sparkles className="h-12 w-12 text-primary" />

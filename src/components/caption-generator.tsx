@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState } from "react";
@@ -22,6 +23,7 @@ import { generateCaptions } from "@/ai/flows/generate-caption";
 import { CaptionCard } from "./caption-card";
 import { useToast } from "@/hooks/use-toast";
 import { Textarea } from "./ui/textarea";
+import { useAuthModal } from "@/context/AuthModalContext";
 
 const formSchema = z.object({
   description: z.string().min(1, { message: "Please describe your image or vibe." }),
@@ -32,6 +34,7 @@ const moods = ["😎 Casual", "😂 Funny", "🤩 Excited", "🤔 Thoughtful", "
 
 export function CaptionGenerator() {
   const { data: session } = useSession();
+  const { setOpen: openAuthModal } = useAuthModal();
   const [captions, setCaptions] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [selectedMood, setSelectedMood] = useState<string | null>(null);
@@ -54,7 +57,7 @@ export function CaptionGenerator() {
         setImagePreview(result);
         form.setValue("image", result);
         if (!form.getValues("description")) {
-          const description = file.name.replace(/\\.[^/.]+$/, "").replace(/[-_]/g, " ");
+          const description = file.name.replace(/\.[^/.]+$/, "").replace(/[-_]/g, " ");
           form.setValue("description", `An image of ${description}`);
         }
       };
@@ -63,6 +66,11 @@ export function CaptionGenerator() {
   };
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
+    if (!session) {
+      openAuthModal(true);
+      return;
+    }
+
     if (!values.image && !values.description) {
       toast({
         variant: "destructive",
