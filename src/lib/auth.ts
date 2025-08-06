@@ -28,6 +28,12 @@ export const authOptions: AuthOptions = {
           return null;
         }
 
+        // Ensure user.password exists before comparing
+        if (!user.password) {
+          console.log('User object does not have a password field:', user);
+          return null;
+        }
+
         const isPasswordMatch = await bcrypt.compare(
           credentials.password,
           user.password
