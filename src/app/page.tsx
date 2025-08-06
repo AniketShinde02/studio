@@ -47,6 +47,7 @@ export default function Home() {
                   <Button variant="ghost" onClick={handleAuthAction} className="text-base font-medium text-[var(--text-secondary)] hover:text-[var(--primary-color)]">Log In</Button>
                 )}
               <Button onClick={handleAuthAction} className="button-primary">Sign Up Free</Button>
+              <ThemeToggle />
             </div>
              <Sheet>
               <SheetTrigger asChild>
@@ -70,6 +71,9 @@ export default function Home() {
                         <Button onClick={handleAuthAction} className="button-primary w-full">Sign Up Free</Button>
                       </>
                     )}
+                    <div className="pt-4">
+                     <ThemeToggle />
+                    </div>
                 </nav>
               </SheetContent>
             </Sheet>
