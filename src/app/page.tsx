@@ -1,16 +1,26 @@
+
 "use client";
 
 import { useAuthModal } from "@/context/AuthModalContext";
 import { CaptionGenerator } from "@/components/caption-generator";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Sparkles, Bot, Palette, Hash, Pencil, Menu } from "lucide-react";
+import { Sparkles, Bot, Palette, Hash, Pencil, Menu, Copy, Share, RefreshCcw } from "lucide-react";
 import Link from 'next/link';
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { useSession } from "next-auth/react";
 
 export default function Home() {
+  const { data: session } = useSession();
   const { setOpen } = useAuthModal();
+
+  const handleAuthAction = () => {
+    if (!session) {
+      setOpen(true);
+    }
+  };
+
 
   return (
     <>
@@ -29,22 +39,37 @@ export default function Home() {
               <Link className="text-base font-medium text-[var(--text-secondary)] hover:text-[var(--primary-color)] transition-colors duration-300" href="/contact">Contact</Link>
             </nav>
             <div className="hidden md:flex items-center gap-4">
-              <Button variant="ghost" onClick={() => setOpen(true)} className="text-base font-medium text-[var(--text-secondary)] hover:text-[var(--primary-color)]">Log In</Button>
-              <Button onClick={() => setOpen(true)} className="button-primary">Sign Up Free</Button>
+               {session ? (
+                  <Button variant="ghost" asChild>
+                    <Link href="/profile" className="text-base font-medium text-[var(--text-secondary)] hover:text-[var(--primary-color)]">Profile</Link>
+                  </Button>
+                ) : (
+                  <Button variant="ghost" onClick={handleAuthAction} className="text-base font-medium text-[var(--text-secondary)] hover:text-[var(--primary-color)]">Log In</Button>
+                )}
+              <Button onClick={handleAuthAction} className="button-primary">Sign Up Free</Button>
             </div>
-            <Sheet>
+             <Sheet>
               <SheetTrigger asChild>
                 <Button variant="ghost" size="icon" className="md:hidden text-slate-300">
                   <Menu className="w-7 h-7" />
                 </Button>
               </SheetTrigger>
-              <SheetContent side="left">
-                <nav className="flex flex-col gap-6 mt-8">
-                  <Link className="text-lg font-medium text-[var(--text-secondary)] hover:text-[var(--primary-color)] transition-colors duration-300" href="/#features">Features</Link>
+              <SheetContent side="left" className="bg-[var(--surface-color)] border-r border-[var(--border-color)]">
+                <nav className="flex flex-col gap-6 mt-8 p-4">
+                  <Link className="text-lg font-medium text-[var(--text-secondary)] hover:text-[var(--primary-color)] transition-colors duration-300" href="/#features" >Features</Link>
                   <Link className="text-lg font-medium text-[var(--text-secondary)] hover:text-[var(--primary-color)] transition-colors duration-300" href="/about">About</Link>
                   <Link className="text-lg font-medium text-[var(--text-secondary)] hover:text-[var(--primary-color)] transition-colors duration-300" href="/contact">Contact</Link>
-                  <Button variant="ghost" onClick={() => setOpen(true)} className="text-lg justify-start font-medium text-[var(--text-secondary)] hover:text-[var(--primary-color)]">Log In</Button>
-                  <Button onClick={() => setOpen(true)} className="button-primary w-full">Sign Up Free</Button>
+                  <div className="border-t border-[var(--border-color)] my-4"></div>
+                   {session ? (
+                     <Button variant="ghost" asChild className="text-lg justify-start font-medium text-[var(--text-secondary)] hover:text-[var(--primary-color)]">
+                        <Link href="/profile">Profile</Link>
+                     </Button>
+                    ) : (
+                      <>
+                        <Button variant="ghost" onClick={handleAuthAction} className="text-lg justify-start font-medium text-[var(--text-secondary)] hover:text-[var(--primary-color)]">Log In</Button>
+                        <Button onClick={handleAuthAction} className="button-primary w-full">Sign Up Free</Button>
+                      </>
+                    )}
                 </nav>
               </SheetContent>
             </Sheet>
@@ -53,7 +78,7 @@ export default function Home() {
 
         <main className="flex-grow">
           <section className="py-28 md:py-40 text-center relative overflow-hidden">
-            <div className="absolute inset-0 bg-grid-slate-800/20 [mask-image:linear-gradient(to_bottom,white_0%,transparent_70%)]"></div>
+            <div className="absolute inset-0 bg-grid-slate-800/[0.2] [mask-image:linear-gradient(to_bottom,white_0%,transparent_70%)]"></div>
             <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-[var(--background-color)]"></div>
             <div className="container mx-auto px-6 relative">
               <h1 className="text-5xl md:text-7xl font-extrabold mb-6 leading-tight tracking-tighter">
@@ -124,13 +149,16 @@ export default function Home() {
                     </div>
                   </div>
                   <div className="md:col-span-1 flex flex-col gap-4">
-                    <Button className="button-primary flex items-center justify-center gap-2 w-full">
+                    <Button className="button-primary flex items-center justify-center gap-2 w-full !rounded-lg">
+                      <Copy className="w-4 h-4" />
                       Copy
                     </Button>
-                    <Button variant="secondary" className="button-secondary flex items-center justify-center gap-2 w-full">
+                    <Button variant="secondary" className="button-secondary flex items-center justify-center gap-2 w-full !rounded-lg !bg-pink-500/20 !border-pink-500/50 hover:!bg-pink-500/30 text-white">
+                      <Share className="w-4 h-4"/>
                       Share
                     </Button>
-                    <Button variant="secondary" className="button-secondary flex items-center justify-center gap-2 w-full bg-slate-700/50 border-[var(--border-color)] hover:bg-slate-700">
+                    <Button variant="secondary" className="button-secondary flex items-center justify-center gap-2 w-full !rounded-lg">
+                      <RefreshCcw className="w-4 h-4"/>
                       Regenerate
                     </Button>
                   </div>
@@ -152,7 +180,7 @@ export default function Home() {
                 </div>
                 <p className="text-[var(--text-secondary)] text-sm max-w-xs">The future of social media content creation, powered by AI.</p>
               </div>
-              <div className="col-span-1">
+              <div>
                 <h3 className="font-semibold text-slate-200 mb-4 tracking-wider uppercase text-sm">Product</h3>
                 <nav className="flex flex-col gap-3">
                   <Link className="text-[var(--text-secondary)] hover:text-[var(--primary-color)] transition-colors duration-200" href="/#features">Features</Link>
@@ -160,16 +188,15 @@ export default function Home() {
                   <Link className="text-[var(--text-secondary)] hover:text-[var(--primary-color)] transition-colors duration-200" href="/contact">Contact</Link>
                 </nav>
               </div>
-              <div className="col-span-1">
+              <div>
                 <h3 className="font-semibold text-slate-200 mb-4 tracking-wider uppercase text-sm">Company</h3>
                 <nav className="flex flex-col gap-3">
                   <Link className="text-[var(--text-secondary)] hover:text-[var(--primary-color)] transition-colors duration-200" href="/about">About Us</Link>
                   <Link className="text-[var(--text-secondary)] hover:text-[var(--primary-color)] transition-colors duration-200" href="#">Blog</Link>
                   <Link className="text-[var(--text-secondary)] hover:text-[var(--primary-color)] transition-colors duration-200" href="#">Careers</Link>
-                  <Link className="text-[var(--text-secondary)] hover:text-[var(--primary-color)] transition-colors duration-200" href="/contact">Contact</Link>
                 </nav>
               </div>
-              <div className="col-span-full lg:col-span-1">
+              <div className="col-span-full md:col-span-2 lg:col-span-1">
                 <h3 className="font-semibold text-slate-200 mb-4 tracking-wider uppercase text-sm">Join Our Newsletter</h3>
                 <p className="text-sm text-[var(--text-secondary)] mb-4">Get weekly insights and product updates.</p>
                 <div className="flex flex-col sm:flex-row gap-2">
@@ -178,9 +205,9 @@ export default function Home() {
                 </div>
               </div>
             </div>
-            <div className="mt-12 pt-8 border-t border-[var(--border-color)] flex flex-col md:flex-row justify-between items-center text-sm">
+            <div className="mt-12 pt-8 border-t border-[var(--border-color)] flex flex-col sm:flex-row justify-between items-center text-sm">
               <p className="text-[var(--text-secondary)]">© 2024 CaptionCraft. All rights reserved.</p>
-              <div className="flex gap-6 mt-4 md:mt-0">
+              <div className="flex gap-6 mt-4 sm:mt-0">
                 <Link className="text-[var(--text-secondary)] hover:text-[var(--primary-color)] transition-colors duration-200" href="#">Terms</Link>
                 <Link className="text-[var(--text-secondary)] hover:text-[var(--primary-color)] transition-colors duration-200" href="#">Privacy Policy</Link>
               </div>
@@ -191,3 +218,5 @@ export default function Home() {
     </>
   );
 }
+
+    
