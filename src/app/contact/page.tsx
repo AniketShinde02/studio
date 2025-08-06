@@ -103,5 +103,5 @@ export default function ContactPage() {
         </div>
       </footer>
     </div>
-  </body>
-</html>
+  );
+}
