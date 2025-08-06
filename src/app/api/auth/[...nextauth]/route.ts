@@ -36,7 +36,7 @@ export const authOptions: AuthOptions = {
             return null;
           }
           
-          return { id: user._id.toString(), email: user.email };
+          return { id: user._id.toString(), email: user.email, createdAt: user.createdAt };
         } catch (error) {
           console.error("Authorize error:", error);
           return null;
@@ -55,12 +55,17 @@ export const authOptions: AuthOptions = {
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id;
+        // @ts-ignore
+        token.createdAt = user.createdAt;
       }
       return token;
     },
     async session({ session, token }) {
       if (token && session.user) {
         session.user.id = token.id as string;
+        // @ts-ignore
+        session.user.createdAt = token.createdAt;
+
       }
       return session;
     },
@@ -70,3 +75,5 @@ export const authOptions: AuthOptions = {
 const handler = NextAuth(authOptions);
 
 export { handler as GET, handler as POST };
+
+    
