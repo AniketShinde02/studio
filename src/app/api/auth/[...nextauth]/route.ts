@@ -1,11 +1,16 @@
 import NextAuth from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
+import GoogleProvider from 'next-auth/providers/google';
 import dbConnect from '@/lib/db';
 import User from '@/models/User';
 import bcrypt from 'bcryptjs';
 
 export const authOptions = {
   providers: [
+    GoogleProvider({
+      clientId: process.env.GOOGLE_CLIENT_ID!,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+    }),
     CredentialsProvider({
       name: 'Credentials',
       credentials: {
@@ -31,21 +36,39 @@ export const authOptions = {
           return null;
         }
 
-        return { id: user._id.toString(), email: user.email };
+        return { id: user._id.toString(), email: user.email, name: user.name };
       }
     })
   ],
   pages: {
-    signIn: '/auth',
+    signIn: '/',
   },
   session: {
     strategy: 'jwt' as const,
   },
   secret: process.env.NEXTAUTH_SECRET,
   callbacks: {
-    async jwt({ token, user }: any) {
+    async signIn({ user, account, profile }) {
+      if (account?.provider === 'google') {
+        await dbConnect();
+        let dbUser = await User.findOne({ email: profile.email });
+        if (!dbUser) {
+          dbUser = await User.create({
+            email: profile.email,
+            name: profile.name,
+            // You might want to handle password creation differently for social logins
+          });
+        }
+        user.id = dbUser._id.toString();
+      }
+      return true;
+    },
+    async jwt({ token, user, account }) {
       if (user) {
         token.id = user.id;
+      }
+      if (account?.provider === "google" && account.access_token) {
+        // You can add google specific tokens here if needed
       }
       return token;
     },

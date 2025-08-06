@@ -1,14 +1,12 @@
+
 "use client";
 
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import {
-  createUserWithEmailAndPassword,
-  signInWithEmailAndPassword,
-} from "firebase/auth";
-import { Loader2, LogIn, UserPlus } from "lucide-react";
+import { signIn } from "next-auth/react";
+import { Loader2, LogIn, UserPlus, Chrome } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
@@ -29,8 +27,8 @@ import {
 } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { auth } from "@/lib/firebase";
 import Link from "next/link";
+import { Separator } from "./ui/separator";
 
 const signUpSchema = z.object({
   email: z.string().email({ message: "Invalid email address." }),
@@ -46,6 +44,7 @@ const signInSchema = z.object({
 
 export function AuthForm() {
   const [isLoading, setIsLoading] = useState(false);
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const { toast } = useToast();
   const router = useRouter();
 
@@ -68,12 +67,19 @@ export function AuthForm() {
   async function onSignUp(values: z.infer<typeof signUpSchema>) {
     setIsLoading(true);
     try {
-      await createUserWithEmailAndPassword(auth, values.email, values.password);
-      toast({
-        title: "Account Created! 🎉",
-        description: "Welcome! You've been successfully signed up.",
+      const response = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(values),
       });
-      router.push("/");
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.message || "Something went wrong");
+      }
+      
+      await onSignIn(values);
+
     } catch (error: any) {
       toast({
         variant: "destructive",
@@ -88,7 +94,16 @@ export function AuthForm() {
   async function onSignIn(values: z.infer<typeof signInSchema>) {
     setIsLoading(true);
     try {
-      await signInWithEmailAndPassword(auth, values.email, values.password);
+      const result = await signIn("credentials", {
+        redirect: false,
+        email: values.email,
+        password: values.password,
+      });
+
+      if (result?.error) {
+        throw new Error(result.error);
+      }
+      
       toast({
         title: "Signed In! 👋",
         description: "Welcome back! You're now logged in.",
@@ -105,6 +120,21 @@ export function AuthForm() {
     }
   }
 
+  async function onGoogleSignIn() {
+    setIsGoogleLoading(true);
+    try {
+      await signIn("google", { callbackUrl: "/" });
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "Sign In Failed",
+        description: "Could not sign in with Google. Please try again.",
+      });
+    } finally {
+      setIsGoogleLoading(false);
+    }
+  }
+
   return (
     <Tabs defaultValue="sign-in" className="w-full">
       <TabsList className="grid w-full grid-cols-2 bg-muted">
@@ -112,14 +142,21 @@ export function AuthForm() {
         <TabsTrigger value="sign-up">Sign Up</TabsTrigger>
       </TabsList>
       <TabsContent value="sign-in">
-        <Card className="bg-card border-border/50">
-          <CardHeader>
-            <CardTitle>Welcome Back</CardTitle>
-            <CardDescription>
-              Enter your credentials to access your account.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
+        <Card className="bg-transparent border-none shadow-none">
+          <CardContent className="p-0 pt-6">
+             <Button variant="outline" className="w-full" onClick={onGoogleSignIn} disabled={isGoogleLoading || isLoading}>
+              {isGoogleLoading ? (
+                <Loader2 className="animate-spin" />
+              ) : (
+                <>
+                  <Chrome className="mr-2" /> Continue with Google
+                </>
+              )}
+            </Button>
+            <div className="relative my-6">
+              <Separator />
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 px-2 bg-background text-sm text-muted-foreground">OR</div>
+            </div>
             <Form {...signInForm}>
               <form
                 onSubmit={signInForm.handleSubmit(onSignIn)}
@@ -181,14 +218,21 @@ export function AuthForm() {
         </Card>
       </TabsContent>
       <TabsContent value="sign-up">
-        <Card className="bg-card border-border/50">
-          <CardHeader>
-            <CardTitle>Create an Account</CardTitle>
-            <CardDescription>
-             Join the community! It's quick and easy.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
+        <Card className="bg-transparent border-none shadow-none">
+          <CardContent className="p-0 pt-6">
+             <Button variant="outline" className="w-full" onClick={onGoogleSignIn} disabled={isGoogleLoading || isLoading}>
+                {isGoogleLoading ? (
+                    <Loader2 className="animate-spin" />
+                ) : (
+                    <>
+                    <Chrome className="mr-2" /> Continue with Google
+                    </>
+                )}
+            </Button>
+            <div className="relative my-6">
+              <Separator />
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 px-2 bg-background text-sm text-muted-foreground">OR</div>
+            </div>
             <Form {...signUpForm}>
               <form
                 onSubmit={signUpForm.handleSubmit(onSignUp)}
