@@ -147,7 +147,7 @@ export function AuthForm() {
       <TabsContent value="sign-in">
         <Card className="bg-transparent border-none shadow-none">
           <CardContent className="p-0 pt-6">
-             <Button variant="outline" className="w-full" onClick={onGoogleSignIn} disabled={isGoogleLoading || isLoading}>
+             <Button variant="outline" className="w-full" onClick={onGoogleSignIn} disabled={true || isGoogleLoading || isLoading}>
               {isGoogleLoading ? (
                 <Loader2 className="animate-spin" />
               ) : (
@@ -223,7 +223,7 @@ export function AuthForm() {
       <TabsContent value="sign-up">
         <Card className="bg-transparent border-none shadow-none">
           <CardContent className="p-0 pt-6">
-             <Button variant="outline" className="w-full" onClick={onGoogleSignIn} disabled={isGoogleLoading || isLoading}>
+             <Button variant="outline" className="w-full" onClick={onGoogleSignIn} disabled={true || isGoogleLoading || isLoading}>
                 {isGoogleLoading ? (
                     <Loader2 className="animate-spin" />
                 ) : (
