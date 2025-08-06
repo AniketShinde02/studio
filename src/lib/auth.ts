@@ -4,8 +4,6 @@ import CredentialsProvider from 'next-auth/providers/credentials';
 import dbConnect from '@/lib/db';
 import User from '@/models/User';
 import bcrypt from 'bcryptjs';
-import { MongoDBAdapter } from "@auth/mongodb-adapter";
-import { clientPromise } from "./db";
 
 export const authOptions: AuthOptions = {
   providers: [
@@ -17,6 +15,7 @@ export const authOptions: AuthOptions = {
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials.password) {
+          console.log('Missing credentials');
           return null;
         }
 
@@ -25,6 +24,7 @@ export const authOptions: AuthOptions = {
         const user = await User.findOne({ email: credentials.email }).select('+password');
 
         if (!user) {
+          console.log('User not found for email:', credentials.email);
           return null;
         }
 
@@ -34,15 +34,11 @@ export const authOptions: AuthOptions = {
         );
 
         if (!isPasswordMatch) {
+          console.log('Password mismatch for user:', credentials.email);
           return null;
         }
         
-        // Convert the Mongoose document to a plain object
-        const userObject = user.toObject();
-        // Remove password from the returned object
-        delete userObject.password;
-
-        return userObject;
+        return user;
       },
     }),
   ],
@@ -58,7 +54,9 @@ export const authOptions: AuthOptions = {
     async jwt({ token, user }) {
       if (user) {
         // @ts-ignore
-        token.id = user._id.toString();
+        token.id = user._id;
+        // @ts-ignore
+        token.email = user.email;
       }
       return token;
     },
@@ -66,6 +64,8 @@ export const authOptions: AuthOptions = {
       if (token && session.user) {
         // @ts-ignore
         session.user.id = token.id;
+        // @ts-ignore
+        session.user.email = token.email;
       }
       return session;
     },
