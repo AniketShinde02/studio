@@ -49,6 +49,7 @@ export function AuthForm() {
   const { toast } = useToast();
   const router = useRouter();
   const { setOpen } = useAuthModal();
+  const [activeTab, setActiveTab] = useState("sign-in");
 
   const signUpForm = useForm<z.infer<typeof signUpSchema>>({
     resolver: zodResolver(signUpSchema),
@@ -75,22 +76,18 @@ export function AuthForm() {
         body: JSON.stringify(values),
       });
 
-      if (response.status === 409) { // 409 Conflict means user exists
-        toast({
-          title: "Account exists",
-          description: "This email is already registered. Trying to sign you in...",
-        });
-        await onSignIn(values);
-      } else if (!response.ok) {
-        const data = await response.json();
+      const data = await response.json();
+
+      if (!response.ok) {
         throw new Error(data.message || "Something went wrong during sign up");
-      } else {
-        toast({
-          title: "Account Created! 🎉",
-          description: "We've created your account. Now signing you in.",
-        });
-        await onSignIn(values);
       }
+      
+      toast({
+        title: "Account Created! 🎉",
+        description: "Your account has been created. Please sign in.",
+      });
+      setActiveTab("sign-in"); // Switch to sign-in tab
+      signInForm.setValue("email", values.email); // Pre-fill email
 
     } catch (error: any) {
       toast({
@@ -150,7 +147,7 @@ export function AuthForm() {
   }
 
   return (
-    <Tabs defaultValue="sign-in" className="w-full">
+    <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
       <TabsList className="grid w-full grid-cols-2 bg-muted">
         <TabsTrigger value="sign-in">Sign In</TabsTrigger>
         <TabsTrigger value="sign-up">Sign Up</TabsTrigger>

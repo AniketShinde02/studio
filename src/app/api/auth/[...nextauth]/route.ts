@@ -21,16 +21,14 @@ export const authOptions: AuthOptions = {
         email: { label: 'Email', type: 'text' },
         password: { label: 'Password', type: 'password' },
       },
-      async authorize(credentials, req) {
+      async authorize(credentials) {
         await dbConnect();
 
-        if (!credentials?.email || !credentials?.password) {
+        if (!credentials?.email || !credentials.password) {
           return null;
         }
 
-        const user = await User.findOne({ email: credentials.email }).select(
-          '+password'
-        );
+        const user = await User.findOne({ email: credentials.email }).select('+password');
 
         if (!user) {
           return null;
@@ -44,7 +42,7 @@ export const authOptions: AuthOptions = {
         if (!isPasswordMatch) {
           return null;
         }
-
+        
         return { id: user._id.toString(), email: user.email, name: user.name };
       },
     }),
