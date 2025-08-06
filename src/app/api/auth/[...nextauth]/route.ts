@@ -38,21 +38,27 @@ export const authOptions: AuthOptions = {
           return null;
         }
         
-        return {
-            id: user._id.toString(),
-            email: user.email,
-            name: user.name,
-        };
+        return user;
       },
     }),
   ],
   pages: {
     signIn: '/',
+    error: '/api/auth/error', // This is the default, but explicitly stating it can help debugging
   },
   session: {
     strategy: 'database',
   },
   secret: process.env.NEXTAUTH_SECRET,
+  callbacks: {
+    async session({ session, user }) {
+      // The user object here is the one from the database session.
+      // We can add the user ID to the session object.
+      // @ts-ignore
+      session.user.id = user.id;
+      return session;
+    },
+  }
 };
 
 const handler = NextAuth(authOptions);
