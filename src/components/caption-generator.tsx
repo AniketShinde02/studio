@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { Loader2, Sparkles, UploadCloud } from "lucide-react";
+import { Loader2, Sparkles, UploadCloud, AlertTriangle } from "lucide-react";
 import Image from "next/image";
 
 import { Button } from "@/components/ui/button";
@@ -185,7 +185,8 @@ export function CaptionGenerator() {
             </div>
           </div>
           
-           <Button type="submit" disabled={isLoading} size="lg" className="w-full font-bold text-lg rounded-xl transition-all duration-300 transform hover:scale-105 active:scale-100 shadow-lg shadow-primary/30 hover:shadow-primary/50">
+           <div className="flex flex-col items-center">
+              <Button type="submit" disabled={isLoading} size="default" className="w-full max-w-xs font-bold text-lg rounded-xl transition-all duration-300 transform hover:scale-105 active:scale-100 shadow-lg shadow-primary/30 hover:shadow-primary/50">
                 {isLoading ? (
                   <>
                     <Loader2 className="mr-2 h-5 w-5 animate-spin" />
@@ -198,6 +199,11 @@ export function CaptionGenerator() {
                   </>
                 )}
               </Button>
+              <div className="flex items-center text-xs text-muted-foreground mt-4">
+                <AlertTriangle className="h-3 w-3 mr-1.5" />
+                <p>Disclaimer: Uploaded images are NOT stored permanently and will be auto-deleted 15 minutes after upload.</p>
+              </div>
+           </div>
         </form>
       </Form>
 
