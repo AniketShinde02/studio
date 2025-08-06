@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server';
 import ImageKit from 'imagekit';
+import { v4 as uuidv4 } from 'uuid';
+import path from 'path';
 
 const imagekit = new ImageKit({
   publicKey: process.env.IMAGEKIT_PUBLIC_KEY!,
@@ -17,10 +19,13 @@ export async function POST(req: Request) {
     }
 
     const buffer = Buffer.from(await file.arrayBuffer());
+    
+    const fileExtension = path.extname(file.name);
+    const uniqueFileName = `${uuidv4()}${fileExtension}`;
 
     const response = await imagekit.upload({
       file: buffer,
-      fileName: file.name,
+      fileName: uniqueFileName,
       folder: '/captioncraft_uploads/',
     });
 
