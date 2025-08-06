@@ -6,6 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Loader2, Sparkles, UploadCloud, AlertTriangle } from "lucide-react";
 import Image from "next/image";
+import { useSession } from "next-auth/react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -30,6 +31,7 @@ const formSchema = z.object({
 const moods = ["😎 Casual", "😂 Funny", "🤩 Excited", "🤔 Thoughtful", "👔 Professional", "💖 Romantic"];
 
 export function CaptionGenerator() {
+  const { data: session } = useSession();
   const [captions, setCaptions] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [selectedMood, setSelectedMood] = useState<string | null>(null);
@@ -48,8 +50,9 @@ export function CaptionGenerator() {
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
-        setImagePreview(reader.result as string);
-        form.setValue("image", reader.result);
+        const result = reader.result as string;
+        setImagePreview(result);
+        form.setValue("image", result);
         if (!form.getValues("description")) {
           const description = file.name.replace(/\\.[^/.]+$/, "").replace(/[-_]/g, " ");
           form.setValue("description", `An image of ${description}`);
@@ -75,6 +78,9 @@ export function CaptionGenerator() {
       const result = await generateCaptions({
         description: values.description,
         mood: selectedMood || undefined,
+        // @ts-ignore
+        userId: session?.user?.id,
+        imageUrl: imagePreview || undefined,
       });
       if (result && result.captions) {
         setCaptions(result.captions);

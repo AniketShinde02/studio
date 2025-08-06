@@ -3,13 +3,16 @@
 /**
  * @fileOverview Generates multiple captions for a social media post based on a user-provided description and mood.
  *
- * - generateCaptions - A function that generates captions.
+ * - generateCaptions - A function that generates captions and saves them.
  * - GenerateCaptionsInput - The input type for the generateCaptions function.
  * - GenerateCaptionsOutput - The return type for the generateCaptions function.
  */
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
+import dbConnect from '@/lib/db';
+import Post from '@/models/Post';
+import { Types } from 'mongoose';
 
 const GenerateCaptionsInputSchema = z.object({
   description: z
@@ -18,6 +21,8 @@ const GenerateCaptionsInputSchema = z.object({
       'A description of the photo or video for which to generate captions.'
     ),
   mood: z.string().optional().describe('The selected mood for the caption.'),
+  userId: z.string().optional().describe('The ID of the user generating the caption.'),
+  imageUrl: z.string().optional().describe('The URL of the uploaded image.'),
 });
 export type GenerateCaptionsInput = z.infer<typeof GenerateCaptionsInputSchema>;
 
@@ -59,6 +64,20 @@ const generateCaptionsFlow = ai.defineFlow(
   },
   async input => {
     const {output} = await generateCaptionsPrompt(input);
+
+    if (output && output.captions && input.userId) {
+        await dbConnect();
+        const postPromises = output.captions.map(caption => {
+            const newPost = new Post({
+                caption: caption,
+                user: new Types.ObjectId(input.userId),
+                image: input.imageUrl,
+            });
+            return newPost.save();
+        });
+        await Promise.all(postPromises);
+    }
+    
     return output!;
   }
 );
