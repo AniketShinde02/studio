@@ -25,10 +25,11 @@ import {
   TabsList,
   TabsTrigger,
 } from "@/components/ui/tabs";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import Link from "next/link";
 import { Separator } from "./ui/separator";
+import { useAuthModal } from "@/context/AuthModalContext";
 
 const signUpSchema = z.object({
   email: z.string().email({ message: "Invalid email address." }),
@@ -47,6 +48,7 @@ export function AuthForm() {
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const { toast } = useToast();
   const router = useRouter();
+  const { setOpen } = useAuthModal();
 
   const signUpForm = useForm<z.infer<typeof signUpSchema>>({
     resolver: zodResolver(signUpSchema),
@@ -104,11 +106,12 @@ export function AuthForm() {
         throw new Error(result.error);
       }
       
+      setOpen(false);
       toast({
         title: "Signed In! 👋",
         description: "Welcome back! You're now logged in.",
       });
-       router.push("/");
+      router.refresh();
     } catch (error: any) {
       toast({
         variant: "destructive",

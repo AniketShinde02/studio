@@ -51,12 +51,12 @@ export const authOptions = {
     async signIn({ user, account, profile }) {
       if (account?.provider === 'google') {
         await dbConnect();
-        let dbUser = await User.findOne({ email: profile.email });
+        let dbUser = await User.findOne({ email: user.email });
         if (!dbUser) {
           dbUser = await User.create({
-            email: profile.email,
-            name: profile.name,
-            // You might want to handle password creation differently for social logins
+            email: user.email,
+            name: user.name,
+            // Social logins don't have passwords
           });
         }
         user.id = dbUser._id.toString();
