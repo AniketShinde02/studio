@@ -4,6 +4,7 @@ import CredentialsProvider from 'next-auth/providers/credentials';
 import dbConnect from '@/lib/db';
 import User from '@/models/User';
 import bcrypt from 'bcryptjs';
+import { Types } from 'mongoose';
 
 export const authOptions: AuthOptions = {
   providers: [
@@ -23,14 +24,8 @@ export const authOptions: AuthOptions = {
 
         const user = await User.findOne({ email: credentials.email }).select('+password');
 
-        if (!user) {
-          console.log('User not found for email:', credentials.email);
-          return null;
-        }
-
-        // Ensure user.password exists before comparing
-        if (!user.password) {
-          console.log('User object does not have a password field:', user);
+        if (!user || !user.password) {
+          console.log('User not found or password missing for email:', credentials.email);
           return null;
         }
 
@@ -59,19 +54,15 @@ export const authOptions: AuthOptions = {
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
-        // @ts-ignore
-        token.id = user._id;
-        // @ts-ignore
+        token.id = user._id.toString();
         token.email = user.email;
       }
       return token;
     },
     async session({ session, token }) {
       if (token && session.user) {
-        // @ts-ignore
-        session.user.id = token.id;
-        // @ts-ignore
-        session.user.email = token.email;
+        session.user.id = token.id as string;
+        session.user.email = token.email as string;
       }
       return session;
     },
