@@ -58,14 +58,15 @@ export const authOptions: AuthOptions = {
   secret: process.env.NEXTAUTH_SECRET,
   callbacks: {
     async signIn({ user, account, profile }) {
+      await dbConnect();
       if (account?.provider === 'google') {
-        await dbConnect();
         let dbUser = await User.findOne({ email: user.email });
         if (!dbUser) {
           dbUser = await User.create({
             email: user.email,
             name: user.name,
-            password: await bcrypt.hash(Math.random().toString(36).slice(-8), 10),
+            // Create a random password for Google users as it's required by schema
+            password: await bcrypt.hash(Math.random().toString(36).slice(-8), 10), 
           });
         }
         user.id = dbUser._id.toString();

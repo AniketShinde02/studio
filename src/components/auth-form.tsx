@@ -75,15 +75,20 @@ export function AuthForm() {
         body: JSON.stringify(values),
       });
 
-      const data = await response.json();
-
-      if (!response.ok) {
-        if (data.message === 'User already exists') {
-          await onSignIn(values);
-        } else {
-          throw new Error(data.message || "Something went wrong");
-        }
+      if (response.status === 409) { // 409 Conflict means user exists
+        toast({
+          title: "Account exists",
+          description: "This email is already registered. Trying to sign you in...",
+        });
+        await onSignIn(values);
+      } else if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.message || "Something went wrong during sign up");
       } else {
+        toast({
+          title: "Account Created! 🎉",
+          description: "We've created your account. Now signing you in.",
+        });
         await onSignIn(values);
       }
 
@@ -211,7 +216,7 @@ export function AuthForm() {
                       Forgot Password?
                     </Link>
                   </div>
-                <Button type="submit" disabled={isLoading} className="w-full">
+                <Button type="submit" disabled={isLoading || isGoogleLoading} className="w-full">
                   {isLoading ? (
                     <Loader2 className="animate-spin" />
                   ) : (
@@ -282,7 +287,7 @@ export function AuthForm() {
                     </FormItem>
                   )}
                 />
-                <Button type="submit" disabled={isLoading} className="w-full">
+                <Button type="submit" disabled={isLoading || isGoogleLoading} className="w-full">
                   {isLoading ? (
                     <Loader2 className="animate-spin" />
                   ) : (

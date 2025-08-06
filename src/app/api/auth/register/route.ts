@@ -1,3 +1,4 @@
+
 import { NextResponse } from 'next/server';
 import dbConnect from '@/lib/db';
 import User from '@/models/User';
@@ -20,7 +21,7 @@ export async function POST(req: Request) {
     if (userExists) {
         return NextResponse.json(
             { success: false, message: 'User already exists' },
-            { status: 400 }
+            { status: 409 } // Use 409 Conflict for existing user
         );
     }
 
@@ -29,7 +30,6 @@ export async function POST(req: Request) {
       password,
     });
     
-    // In a real app, you'd sign a token here and send it back
     return NextResponse.json({ success: true, data: { email: user.email } }, { status: 201 });
   } catch (error: any) {
     return NextResponse.json({ success: false, message: error.message }, { status: 400 });
