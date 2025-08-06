@@ -1,7 +1,7 @@
 'use server';
 
 /**
- * @fileOverview Generates multiple captions for a social media post based on a user-provided description.
+ * @fileOverview Generates multiple captions for a social media post based on a user-provided description and mood.
  *
  * - generateCaptions - A function that generates captions.
  * - GenerateCaptionsInput - The input type for the generateCaptions function.
@@ -17,6 +17,7 @@ const GenerateCaptionsInputSchema = z.object({
     .describe(
       'A description of the photo or video for which to generate captions.'
     ),
+  mood: z.string().optional().describe('The selected mood for the caption.'),
 });
 export type GenerateCaptionsInput = z.infer<typeof GenerateCaptionsInputSchema>;
 
@@ -35,14 +36,17 @@ const generateCaptionsPrompt = ai.definePrompt({
   name: 'generateCaptionsPrompt',
   input: {schema: GenerateCaptionsInputSchema},
   output: {schema: GenerateCaptionsOutputSchema},
-  prompt: `You are a social media expert specializing in creating engaging captions.
+  prompt: `You are a social media expert specializing in creating engaging captions for a Gen Z audience.
 
-  Generate multiple captions (at least 3) for a social media post based on the following description:
+  Generate multiple captions (at least 3) for a social media post based on the following description and mood.
 
   Description: {{{description}}}
+  {{#if mood}}
+  Mood: {{{mood}}}
+  {{/if}}
 
   Each caption should be unique and suitable for platforms like TikTok, Instagram, and Snapchat.
-  Consider different tones and styles to appeal to a Gen Z audience.
+  Incorporate relevant emojis and hashtags.
   Return the captions in an array.
   `,
 });

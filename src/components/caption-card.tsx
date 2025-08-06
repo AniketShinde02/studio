@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { Check, Copy } from 'lucide-react';
 
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 
@@ -34,16 +34,16 @@ export function CaptionCard({ caption }: CaptionCardProps) {
   }, [copied]);
 
   return (
-    <Card className="group bg-card/50 border-border/50 shadow-md hover:shadow-lg hover:shadow-accent/20 transition-all duration-300 rounded-xl flex flex-col justify-between min-h-[150px]">
+    <Card className="group bg-gray-800 shadow-md hover:shadow-lg hover:shadow-primary/20 transition-all duration-300 rounded-xl flex flex-col justify-between min-h-[150px]">
       <CardContent className="p-4 flex-grow">
         <p className="text-foreground/90">{caption}</p>
       </CardContent>
-      <div className="p-4 pt-0">
+      <CardFooter className="p-4 pt-0">
         <Button
           onClick={handleCopy}
           variant="ghost"
           size="sm"
-          className="w-full text-accent hover:bg-accent/10 hover:text-accent"
+          className="w-full text-primary hover:bg-primary/10 hover:text-primary"
         >
           {copied ? (
             <>
@@ -57,7 +57,7 @@ export function CaptionCard({ caption }: CaptionCardProps) {
             </>
           )}
         </Button>
-      </div>
+      </CardFooter>
     </Card>
   );
 }
