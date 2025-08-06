@@ -1,3 +1,4 @@
+
 import NextAuth, { AuthOptions } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import GoogleProvider from 'next-auth/providers/google';
@@ -64,8 +65,6 @@ export const authOptions: AuthOptions = {
           dbUser = await User.create({
             email: user.email,
             name: user.name,
-            // Social logins don't have passwords, but the model requires one.
-            // We can add a dummy one or adjust the model. For now, let's add a random one.
             password: await bcrypt.hash(Math.random().toString(36).slice(-8), 10),
           });
         }

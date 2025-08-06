@@ -79,13 +79,11 @@ export function AuthForm() {
 
       if (!response.ok) {
         if (data.message === 'User already exists') {
-          // If user exists, try to sign them in instead.
           await onSignIn(values);
         } else {
           throw new Error(data.message || "Something went wrong");
         }
       } else {
-        // If sign up is successful, sign them in.
         await onSignIn(values);
       }
 
