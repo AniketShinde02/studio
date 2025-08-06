@@ -6,7 +6,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { signIn } from "next-auth/react";
-import { Loader2, LogIn, UserPlus, Chrome } from "lucide-react";
+import { Loader2, LogIn, UserPlus } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
@@ -45,7 +45,6 @@ const signInSchema = z.object({
 
 export function AuthForm() {
   const [isLoading, setIsLoading] = useState(false);
-  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const { toast } = useToast();
   const router = useRouter();
   const { setOpen } = useAuthModal();
@@ -130,22 +129,6 @@ export function AuthForm() {
     }
   }
 
-  async function onGoogleSignIn() {
-    setIsGoogleLoading(true);
-    try {
-      await signIn("google", { callbackUrl: "/" });
-      setOpen(false);
-    } catch (error) {
-      toast({
-        variant: "destructive",
-        title: "Sign In Failed",
-        description: "Could not sign in with Google. Please try again.",
-      });
-    } finally {
-      setIsGoogleLoading(false);
-    }
-  }
-
   return (
     <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
       <TabsList className="grid w-full grid-cols-2 bg-muted">
@@ -155,19 +138,6 @@ export function AuthForm() {
       <TabsContent value="sign-in">
         <Card className="bg-transparent border-none shadow-none">
           <CardContent className="p-0 pt-6">
-             <Button variant="outline" className="w-full" onClick={onGoogleSignIn} disabled={isGoogleLoading || isLoading}>
-              {isGoogleLoading ? (
-                <Loader2 className="animate-spin" />
-              ) : (
-                <>
-                  <Chrome className="mr-2" /> Continue with Google
-                </>
-              )}
-            </Button>
-            <div className="relative my-6">
-              <Separator />
-              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 px-2 bg-background text-sm text-muted-foreground">OR</div>
-            </div>
             <Form {...signInForm}>
               <form
                 onSubmit={signInForm.handleSubmit(onSignIn)}
@@ -214,7 +184,7 @@ export function AuthForm() {
                       Forgot Password?
                     </Link>
                   </div>
-                <Button type="submit" disabled={isLoading || isGoogleLoading} className="w-full">
+                <Button type="submit" disabled={isLoading} className="w-full">
                   {isLoading ? (
                     <Loader2 className="animate-spin" />
                   ) : (
@@ -231,19 +201,6 @@ export function AuthForm() {
       <TabsContent value="sign-up">
         <Card className="bg-transparent border-none shadow-none">
           <CardContent className="p-0 pt-6">
-             <Button variant="outline" className="w-full" onClick={onGoogleSignIn} disabled={isGoogleLoading || isLoading}>
-                {isGoogleLoading ? (
-                    <Loader2 className="animate-spin" />
-                ) : (
-                    <>
-                    <Chrome className="mr-2" /> Continue with Google
-                    </>
-                )}
-            </Button>
-            <div className="relative my-6">
-              <Separator />
-              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 px-2 bg-background text-sm text-muted-foreground">OR</div>
-            </div>
             <Form {...signUpForm}>
               <form
                 onSubmit={signUpForm.handleSubmit(onSignUp)}
@@ -285,7 +242,7 @@ export function AuthForm() {
                     </FormItem>
                   )}
                 />
-                <Button type="submit" disabled={isLoading || isGoogleLoading} className="w-full">
+                <Button type="submit" disabled={isLoading} className="w-full">
                   {isLoading ? (
                     <Loader2 className="animate-spin" />
                   ) : (
