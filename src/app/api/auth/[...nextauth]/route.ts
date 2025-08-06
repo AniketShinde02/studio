@@ -4,9 +4,6 @@ import CredentialsProvider from 'next-auth/providers/credentials';
 import dbConnect from '@/lib/db';
 import User from '@/models/User';
 import bcrypt from 'bcryptjs';
-import { config } from 'dotenv';
-
-config();
 
 export const authOptions: AuthOptions = {
   providers: [
@@ -39,7 +36,7 @@ export const authOptions: AuthOptions = {
             return null;
           }
           
-          return { id: user._id.toString(), email: user.email, name: user.name };
+          return { id: user._id.toString(), email: user.email };
         } catch (error) {
           console.error("Authorize error:", error);
           return null;
@@ -61,9 +58,9 @@ export const authOptions: AuthOptions = {
       }
       return token;
     },
-    async session({ session, token }: any) {
+    async session({ session, token }) {
       if (token && session.user) {
-        session.user.id = token.id;
+        session.user.id = token.id as string;
       }
       return session;
     },
