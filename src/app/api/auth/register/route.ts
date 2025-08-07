@@ -25,13 +25,19 @@ export async function POST(req: Request) {
         );
     }
 
-    const user = await User.create({
+    // Use new User() and save() to ensure the 'pre-save' hook for password hashing is triggered
+    const user = new User({
       email,
       password,
     });
     
+    await user.save();
+    
     return NextResponse.json({ success: true, data: { email: user.email } }, { status: 201 });
   } catch (error: any) {
-    return NextResponse.json({ success: false, message: error.message }, { status: 400 });
+    // Log the full error for debugging
+    console.error('Registration Error:', error);
+    // Provide a more generic error message to the client
+    return NextResponse.json({ success: false, message: error.message || 'An unexpected error occurred.' }, { status: 500 });
   }
 }
