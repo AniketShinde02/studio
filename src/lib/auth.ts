@@ -4,6 +4,7 @@ import CredentialsProvider from 'next-auth/providers/credentials';
 import dbConnect from '@/lib/db';
 import User from '@/models/User';
 import bcrypt from 'bcryptjs';
+import { Types } from 'mongoose';
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -14,18 +15,30 @@ export const authOptions: NextAuthOptions = {
         password: { label: 'Password', type: 'password' },
       },
       async authorize(credentials) {
-        await dbConnect();
-
         if (!credentials?.email || !credentials.password) {
-          console.log('Missing credentials');
+          console.error('Auth Error: Missing credentials');
+          return null;
+        }
+        
+        try {
+          await dbConnect();
+          console.log('Auth: DB connected.');
+        } catch (error) {
+          console.error('Auth Error: DB connection failed.', error);
           return null;
         }
 
+
         const user = await User.findOne({ email: credentials.email }).select('+password');
 
-        if (!user || !user.password) {
-          console.log('User not found or password missing for email:', credentials.email);
+        if (!user) {
+          console.error('Auth Error: User not found for email:', credentials.email);
           return null;
+        }
+
+        if (!user.password) {
+            console.error('Auth Error: User found but password hash is missing for email:', credentials.email);
+            return null;
         }
 
         const isPasswordMatch = await bcrypt.compare(
@@ -34,20 +47,24 @@ export const authOptions: NextAuthOptions = {
         );
 
         if (!isPasswordMatch) {
-          console.log('Password mismatch for user:', credentials.email);
+          console.error('Auth Error: Password mismatch for user:', credentials.email);
           return null;
         }
         
+        console.log('Auth success for:', credentials.email);
+        
+        // Convert to a plain object to ensure it's serializable
         const userObject = user.toObject();
-        // It's a good practice to remove the password before returning
+        // IMPORTANT: Never return the password hash
         delete userObject.password;
+        
         return userObject;
       },
     }),
   ],
   pages: {
     signIn: '/',
-    error: '/api/auth/error',
+    error: '/api/auth/error', // This is a default error page, we can customize it
   },
   session: {
     strategy: 'jwt',
@@ -55,13 +72,11 @@ export const authOptions: NextAuthOptions = {
   secret: process.env.NEXTAUTH_SECRET,
   callbacks: {
     async jwt({ token, user }) {
+      // This is called first, on sign-in user is passed.
       if (user) {
-        // On sign in, user object is available. Persist the user id to the token.
-        // @ts-ignore
-        token.id = user._id.toString();
+        token.id = (user as any)._id.toString();
         token.email = user.email;
-        // @ts-ignore
-        token.createdAt = user.createdAt;
+        token.createdAt = (user as any).createdAt;
       }
       return token;
     },
@@ -71,8 +86,7 @@ export const authOptions: NextAuthOptions = {
       if (token && session.user) {
         session.user.id = token.id as string;
         session.user.email = token.email as string;
-        // @ts-ignore
-        session.user.createdAt = token.createdAt;
+        (session.user as any).createdAt = token.createdAt;
       }
       return session;
     },

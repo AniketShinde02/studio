@@ -1,7 +1,6 @@
 
 import 'dotenv/config';
 import mongoose, { Mongoose } from 'mongoose';
-import { MongoClient } from 'mongodb';
 
 const MONGODB_URI = process.env.MONGODB_URI;
 
@@ -11,10 +10,15 @@ if (!MONGODB_URI) {
   );
 }
 
+/**
+ * Global is used here to maintain a cached connection across hot reloads
+ * in development. This prevents connections growing exponentially
+ * during API Route usage.
+ */
 let cached = (global as any).mongoose;
 
 if (!cached) {
-  cached = (global as any).mongoose = { conn: null, promise: null, clientPromise: null };
+  cached = (global as any).mongoose = { conn: null, promise: null };
 }
 
 async function dbConnect(): Promise<Mongoose> {
@@ -28,19 +32,23 @@ async function dbConnect(): Promise<Mongoose> {
     };
 
     cached.promise = mongoose.connect(MONGODB_URI!, opts).then((mongoose) => {
+      console.log('New Mongoose connection established.');
       return mongoose;
+    }).catch(err => {
+      console.error('Mongoose connection error:', err);
+      cached.promise = null; // Reset promise on error
+      throw err;
     });
   }
-  cached.conn = await cached.promise;
+
+  try {
+    cached.conn = await cached.promise;
+  } catch (e) {
+    cached.promise = null;
+    throw e;
+  }
+  
   return cached.conn;
 }
-
-
-if (!cached.clientPromise) {
-  cached.clientPromise = MongoClient.connect(MONGODB_URI);
-}
-
-export const clientPromise: Promise<MongoClient> = cached.clientPromise;
-
 
 export default dbConnect;
