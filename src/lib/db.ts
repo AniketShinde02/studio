@@ -5,6 +5,7 @@ import mongoose, { Mongoose } from 'mongoose';
 const MONGODB_URI = process.env.MONGODB_URI;
 
 if (!MONGODB_URI) {
+  console.error('CRITICAL: MONGODB_URI is not defined in .env file.');
   throw new Error(
     'Please define the MONGODB_URI environment variable inside .env'
   );
@@ -30,7 +31,8 @@ async function dbConnect(): Promise<Mongoose> {
     const opts = {
       bufferCommands: false,
     };
-
+    
+    console.log('Attempting to connect to MongoDB...');
     cached.promise = mongoose.connect(MONGODB_URI!, opts).then((mongoose) => {
       console.log('New Mongoose connection established.');
       return mongoose;
