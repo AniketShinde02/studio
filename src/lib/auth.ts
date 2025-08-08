@@ -5,7 +5,7 @@ import dbConnect, { clientPromise } from '@/lib/db';
 import User from '@/models/User';
 import bcrypt from 'bcryptjs';
 import { MongoDBAdapter } from '@auth/mongodb-adapter';
-import { Adapter } from 'next-auth/adapters';
+import type { Adapter } from 'next-auth/adapters';
 
 export const authOptions: NextAuthOptions = {
   adapter: MongoDBAdapter(clientPromise) as Adapter,
@@ -18,42 +18,26 @@ export const authOptions: NextAuthOptions = {
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials.password) {
-          console.error('Auth Error: Missing credentials');
-          return null;
+          throw new Error('Please provide email and password');
         }
         
-        try {
-          await dbConnect();
-        } catch (error) {
-          console.error('Auth Error: DB connection failed.', error);
-          return null;
-        }
+        await dbConnect();
 
         const user = await User.findOne({ email: credentials.email }).select('+password');
 
         if (!user) {
-          console.error('Auth Error: User not found for email:', credentials.email);
-          return null;
+          throw new Error('No user found with this email');
         }
-
-        if (!user.password) {
-            console.error('Auth Error: User found but password hash is missing for email:', credentials.email);
-            return null;
-        }
-
+        
         const isPasswordMatch = await bcrypt.compare(
           credentials.password,
           user.password
         );
 
         if (!isPasswordMatch) {
-          console.error('Auth Error: Password mismatch for user:', credentials.email);
-          return null;
+          throw new Error('Incorrect password');
         }
         
-        console.log('Auth success for:', credentials.email);
-        
-        // Return a plain object, not a Mongoose document.
         return {
           id: user._id.toString(),
           email: user.email,
@@ -62,27 +46,27 @@ export const authOptions: NextAuthOptions = {
       },
     }),
   ],
-  pages: {
-    signIn: '/',
-  },
   session: {
     strategy: 'jwt',
   },
   secret: process.env.NEXTAUTH_SECRET,
+  pages: {
+    signIn: '/',
+  },
   callbacks: {
     async jwt({ token, user }) {
-      // On sign-in, user object is passed.
       if (user) {
         token.id = user.id;
-        token.createdAt = (user as any).createdAt;
+        // @ts-ignore
+        token.createdAt = user.createdAt;
       }
       return token;
     },
     async session({ session, token }) {
-      // Pass the user ID from the token to the session object
       if (token && session.user) {
         session.user.id = token.id as string;
-        (session.user as any).createdAt = token.createdAt;
+        // @ts-ignore
+        session.user.createdAt = token.createdAt;
       }
       return session;
     },

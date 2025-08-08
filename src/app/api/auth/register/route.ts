@@ -2,6 +2,7 @@
 import { NextResponse } from 'next/server';
 import dbConnect from '@/lib/db';
 import User from '@/models/User';
+import bcrypt from 'bcryptjs';
 
 export async function POST(req: Request) {
   await dbConnect();
@@ -25,13 +26,12 @@ export async function POST(req: Request) {
         );
     }
 
-    // Use new User() and save() to ensure the 'pre-save' hook for password hashing is triggered
-    const user = new User({
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const user = await User.create({
       email,
-      password,
+      password: hashedPassword,
     });
-    
-    await user.save();
     
     return NextResponse.json({ success: true, data: { email: user.email } }, { status: 201 });
   } catch (error: any) {
