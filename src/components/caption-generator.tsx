@@ -7,7 +7,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Loader2, Sparkles, UploadCloud, AlertTriangle } from "lucide-react";
 import Image from "next/image";
-import { useSession } from "next-auth/react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -15,24 +14,41 @@ import {
   FormControl,
   FormField,
   FormItem,
+  FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { generateCaptions } from "@/ai/flows/generate-caption";
 import { CaptionCard } from "./caption-card";
 import { useToast } from "@/hooks/use-toast";
 import { Textarea } from "./ui/textarea";
 
 const formSchema = z.object({
-  description: z.string().min(1, { message: "Please describe your image or vibe." }),
+  mood: z.string().min(1, { message: "Please select a mood." }),
+  description: z.string().optional(),
   image: z.any().optional(),
 });
 
-const moods = ["😎 Casual", "😂 Funny", "🤩 Excited", "🤔 Thoughtful", "👔 Professional", "💖 Romantic"];
+const moods = [
+    "😊 Happy / Cheerful", "😍 Romantic / Flirty", "😎 Cool / Confident",
+    "😜 Fun / Playful", "🤔 Thoughtful / Deep", "😌 Calm / Peaceful",
+    "😢 Sad / Emotional", "😏 Sassy / Savage", "😲 Surprised / Excited",
+    "🌅 Aesthetic / Artsy", "👔 Formal / Professional", "📈 Business / Corporate",
+    "📝 Informative / Educational", "🎩 Elegant / Sophisticated", "🏖 Casual / Chill",
+    "🔥 Motivational / Inspirational", "🎉 Celebratory / Festive", "⚡ Bold / Daring",
+    "🌍 Travel / Adventure", "🍔 Foodie / Culinary", "🐾 Pet / Cute",
+    "🎵 Musical / Rhythmic"
+];
 
 export function CaptionGenerator() {
   const [captions, setCaptions] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [selectedMood, setSelectedMood] = useState<string | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const { toast } = useToast();
@@ -40,6 +56,7 @@ export function CaptionGenerator() {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
+      mood: "",
       description: "",
     },
   });
@@ -82,8 +99,8 @@ export function CaptionGenerator() {
 
 
       const result = await generateCaptions({
+        mood: values.mood,
         description: values.description,
-        mood: selectedMood || undefined,
         imageUrl: imageUrl || undefined,
       });
       if (result && result.captions) {
@@ -121,7 +138,7 @@ export function CaptionGenerator() {
                           src={imagePreview}
                           alt="Uploaded preview"
                           fill
-                          objectFit="cover"
+                          style={{ objectFit: "cover" }}
                         />
                     </div>
                   ) : (
@@ -135,13 +152,37 @@ export function CaptionGenerator() {
               </label>
             </div> 
 
-
             <div className="space-y-4">
+              <FormField
+                control={form.control}
+                name="mood"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Select a mood (required)</FormLabel>
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <FormControl>
+                        <SelectTrigger className="bg-background">
+                          <SelectValue placeholder="Choose the vibe for your caption..." />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {moods.map((mood) => (
+                          <SelectItem key={mood} value={mood}>
+                            {mood}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage className="text-red-400" />
+                  </FormItem>
+                )}
+              />
                <FormField
                   control={form.control}
                   name="description"
                   render={({ field }) => (
                     <FormItem>
+                      <FormLabel>Describe your content (optional)</FormLabel>
                       <FormControl>
                         <Textarea
                           placeholder="e.g., A golden retriever puppy playing in a field of flowers..."
@@ -153,23 +194,6 @@ export function CaptionGenerator() {
                     </FormItem>
                   )}
                 />
-               <div>
-                  <p className="text-sm font-medium text-muted-foreground mb-3">Select a mood (optional):</p>
-                  <div className="flex flex-wrap justify-start gap-2">
-                    {moods.map((mood) => (
-                      <Button
-                        key={mood}
-                        type="button"
-                        variant={selectedMood === mood ? 'default' : 'secondary'}
-                        size="sm"
-                        className={`rounded-full text-xs font-semibold transition-colors duration-300 ${selectedMood === mood ? 'bg-primary text-primary-foreground' : 'bg-muted/60 text-foreground hover:bg-muted'}`}
-                        onClick={() => setSelectedMood(mood === selectedMood ? null : mood)}
-                      >
-                        {mood}
-                      </Button>
-                    ))}
-                  </div>
-              </div>
             </div>
           </div>
           

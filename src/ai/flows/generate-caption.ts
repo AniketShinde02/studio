@@ -13,12 +13,13 @@ import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 
 const GenerateCaptionsInputSchema = z.object({
+  mood: z.string().describe('The selected mood for the caption.'),
   description: z
     .string()
+    .optional()
     .describe(
       'A description of the photo or video for which to generate captions.'
     ),
-  mood: z.string().optional().describe('The selected mood for the caption.'),
   imageUrl: z.string().optional().describe('The URL of the uploaded image.'),
 });
 export type GenerateCaptionsInput = z.infer<typeof GenerateCaptionsInputSchema>;
@@ -26,7 +27,7 @@ export type GenerateCaptionsInput = z.infer<typeof GenerateCaptionsInputSchema>;
 const GenerateCaptionsOutputSchema = z.object({
   captions: z
     .array(z.string())
-    .describe('An array of generated captions for the social media post.'),
+    .describe('An array of 3 generated captions for the social media post.'),
 });
 export type GenerateCaptionsOutput = z.infer<typeof GenerateCaptionsOutputSchema>;
 
@@ -40,11 +41,12 @@ const generateCaptionsPrompt = ai.definePrompt({
   output: {schema: GenerateCaptionsOutputSchema},
   prompt: `You are a social media expert specializing in creating engaging captions for a Gen Z audience.
 
-  Generate multiple captions (at least 3) for a social media post based on the following description and mood.
-
-  Description: {{{description}}}
-  {{#if mood}}
+  Generate exactly 3 unique captions for a social media post based on the following mood.
+  
   Mood: {{{mood}}}
+
+  {{#if description}}
+  Use this optional description for additional context: {{{description}}}
   {{/if}}
 
   Each caption should be unique and suitable for platforms like TikTok, Instagram, and Snapchat.
