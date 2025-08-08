@@ -3,7 +3,7 @@ import mongoose, { Schema, Document, Types } from 'mongoose';
 export interface IPost extends Document {
   caption: string;
   image?: string;
-  user: Types.ObjectId;
+  user?: Types.ObjectId;
   createdAt: Date;
 }
 
@@ -18,7 +18,6 @@ const PostSchema: Schema = new Schema({
   user: {
     type: Schema.Types.ObjectId,
     ref: 'User',
-    required: true,
   },
   createdAt: {
     type: Date,

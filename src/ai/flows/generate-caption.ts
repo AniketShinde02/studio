@@ -11,6 +11,9 @@
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
+import dbConnect from '@/lib/db';
+import Post from '@/models/Post';
+
 
 const GenerateCaptionsInputSchema = z.object({
   mood: z.string().describe('The selected mood for the caption.'),
@@ -63,6 +66,23 @@ const generateCaptionsFlow = ai.defineFlow(
   },
   async input => {
     const {output} = await generateCaptionsPrompt(input);
+
+    if (output && output.captions) {
+        try {
+            await dbConnect();
+            for (const caption of output.captions) {
+                const newPost = new Post({
+                    caption: caption,
+                    image: input.imageUrl,
+                });
+                await newPost.save();
+            }
+        } catch (error) {
+            console.error('Failed to save posts to database', error);
+            // We don't want to block the user from seeing the captions if DB save fails
+        }
+    }
+    
     return output!;
   }
 );
