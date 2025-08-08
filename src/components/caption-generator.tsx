@@ -133,12 +133,12 @@ export function CaptionGenerator() {
             <div className="flex items-center justify-center w-full">
               <label htmlFor="file-upload" className="flex flex-col items-center justify-center w-full h-64 border-2 border-border border-dashed rounded-lg cursor-pointer bg-background hover:bg-muted/40 transition-colors">
                   {imagePreview ? (
-                    <div className="relative w-full h-full rounded-lg overflow-hidden">
+                    <div className="relative w-full h-full rounded-lg overflow-hidden bg-muted/20">
                        <Image
                           src={imagePreview}
                           alt="Uploaded preview"
                           fill
-                          style={{ objectFit: "cover" }}
+                          style={{ objectFit: "contain" }}
                         />
                     </div>
                   ) : (
