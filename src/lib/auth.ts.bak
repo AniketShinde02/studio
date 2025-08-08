@@ -1,11 +1,14 @@
 
 import type {NextAuthOptions} from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
-import dbConnect from '@/lib/db';
+import dbConnect, { clientPromise } from '@/lib/db';
 import User from '@/models/User';
 import bcrypt from 'bcryptjs';
+import { MongoDBAdapter } from '@auth/mongodb-adapter';
+import type { Adapter } from 'next-auth/adapters';
 
 export const authOptions: NextAuthOptions = {
+  adapter: MongoDBAdapter(clientPromise) as Adapter,
   providers: [
     CredentialsProvider({
       name: 'Credentials',
@@ -14,16 +17,16 @@ export const authOptions: NextAuthOptions = {
         password: { label: 'Password', type: 'password' },
       },
       async authorize(credentials) {
-        await dbConnect();
-
         if (!credentials?.email || !credentials.password) {
-          throw new Error('Missing email or password.');
+          throw new Error('Please provide email and password');
         }
+        
+        await dbConnect();
 
         const user = await User.findOne({ email: credentials.email }).select('+password');
 
         if (!user) {
-          throw new Error('No user found with this email.');
+          throw new Error('No user found with this email');
         }
         
         const isPasswordMatch = await bcrypt.compare(
@@ -32,13 +35,14 @@ export const authOptions: NextAuthOptions = {
         );
 
         if (!isPasswordMatch) {
-          throw new Error('Incorrect password.');
+          throw new Error('Incorrect password');
         }
         
-        // Return a plain, serializable object. This is the critical fix.
+        // Return a plain object, not a Mongoose document
         return {
           id: user._id.toString(),
           email: user.email,
+          createdAt: user.createdAt,
         };
       },
     }),
@@ -54,21 +58,16 @@ export const authOptions: NextAuthOptions = {
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id;
+        // @ts-ignore
+        token.createdAt = user.createdAt;
       }
       return token;
     },
     async session({ session, token }) {
       if (token && session.user) {
-        // Ensure the session user object has the id
         session.user.id = token.id as string;
-        
-        // You can also fetch additional user data here if needed
-        await dbConnect();
-        const userFromDb = await User.findById(token.id);
-        if (userFromDb) {
-            // @ts-ignore
-            session.user.createdAt = userFromDb.createdAt;
-        }
+        // @ts-ignore
+        session.user.createdAt = token.createdAt;
       }
       return session;
     },

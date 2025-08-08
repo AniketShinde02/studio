@@ -6,7 +6,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { signIn } from "next-auth/react";
-import { Loader2, LogIn, UserPlus } from "lucide-react";
+import { Loader2, LogIn, UserPlus, Eye, EyeOff } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
@@ -28,7 +28,6 @@ import {
 import { Card, CardContent } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import Link from "next/link";
-import { Separator } from "./ui/separator";
 import { useAuthModal } from "@/context/AuthModalContext";
 
 const signUpSchema = z.object({
@@ -45,6 +44,8 @@ const signInSchema = z.object({
 
 export function AuthForm() {
   const [isLoading, setIsLoading] = useState(false);
+  const [showSignInPassword, setShowSignInPassword] = useState(false);
+  const [showSignUpPassword, setShowSignUpPassword] = useState(false);
   const { toast } = useToast();
   const router = useRouter();
   const { setOpen } = useAuthModal();
@@ -85,8 +86,8 @@ export function AuthForm() {
         title: "Account Created! 🎉",
         description: "Your account has been created. Please sign in.",
       });
-      setActiveTab("sign-in"); // Switch to sign-in tab
-      signInForm.setValue("email", values.email); // Pre-fill email
+      setActiveTab("sign-in");
+      signInForm.setValue("email", values.email);
 
     } catch (error: any) {
       toast({
@@ -169,12 +170,21 @@ export function AuthForm() {
                     <FormItem>
                       <FormLabel>Password</FormLabel>
                       <FormControl>
-                        <Input
-                          type="password"
-                          placeholder="••••••••"
-                           className="bg-background/80"
-                          {...field}
-                        />
+                        <div className="relative">
+                          <Input
+                            type={showSignInPassword ? "text" : "password"}
+                            placeholder="••••••••"
+                            className="bg-background/80 pr-10"
+                            {...field}
+                          />
+                          <button
+                            type="button"
+                            onClick={() => setShowSignInPassword(!showSignInPassword)}
+                            className="absolute inset-y-0 right-0 flex items-center pr-3 text-muted-foreground"
+                          >
+                            {showSignInPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                          </button>
+                        </div>
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -232,12 +242,21 @@ export function AuthForm() {
                     <FormItem>
                       <FormLabel>Password</FormLabel>
                       <FormControl>
-                        <Input
-                          type="password"
-                          placeholder="••••••••"
-                           className="bg-background/80"
-                          {...field}
-                        />
+                        <div className="relative">
+                          <Input
+                            type={showSignUpPassword ? "text" : "password"}
+                            placeholder="••••••••"
+                            className="bg-background/80 pr-10"
+                            {...field}
+                          />
+                          <button
+                            type="button"
+                            onClick={() => setShowSignUpPassword(!showSignUpPassword)}
+                            className="absolute inset-y-0 right-0 flex items-center pr-3 text-muted-foreground"
+                          >
+                            {showSignUpPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                          </button>
+                        </div>
                       </FormControl>
                       <FormMessage />
                     </FormItem>
