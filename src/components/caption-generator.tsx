@@ -61,11 +61,6 @@ export function CaptionGenerator() {
   };
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    if (!session) {
-      openAuthModal(true);
-      return;
-    }
-
     if (!uploadedFile && !values.description) {
       toast({
         variant: "destructive",
@@ -101,8 +96,6 @@ export function CaptionGenerator() {
       const result = await generateCaptions({
         description: values.description,
         mood: selectedMood || undefined,
-        // @ts-ignore
-        userId: session?.user?.id,
         imageUrl: imageUrl || undefined,
       });
       if (result && result.captions) {
