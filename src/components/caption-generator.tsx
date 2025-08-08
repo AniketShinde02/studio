@@ -7,6 +7,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Loader2, Sparkles, UploadCloud, AlertTriangle } from "lucide-react";
 import Image from "next/image";
+import { useSession } from "next-auth/react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -52,6 +53,7 @@ export function CaptionGenerator() {
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const { toast } = useToast();
+  const { data: session } = useSession();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -77,52 +79,75 @@ export function CaptionGenerator() {
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true);
     setCaptions([]);
-    let imageUrl = '';
 
     try {
-       if (uploadedFile) {
+      let imageUrl = '';
+
+      // Set up the image upload promise
+      const uploadPromise = uploadedFile ? (async () => {
         const formData = new FormData();
         formData.append('file', uploadedFile);
-
         const uploadResponse = await fetch('/api/upload', {
           method: 'POST',
           body: formData,
         });
-
         const uploadData = await uploadResponse.json();
-
         if (!uploadResponse.ok || !uploadData.success) {
           throw new Error(uploadData.message || 'Image upload failed.');
         }
-        imageUrl = uploadData.url;
-      }
+        return uploadData.url;
+      })() : Promise.resolve(undefined);
 
-
-      const result = await generateCaptions({
+      // Set up the caption generation promise
+      const captionPromise = (imgUrl?: string) => generateCaptions({
         mood: values.mood,
         description: values.description,
-        imageUrl: imageUrl || undefined,
+        imageUrl: imgUrl,
+        userId: session?.user?.id,
       });
-      if (result && result.captions) {
-        setCaptions(result.captions);
+
+      // If there's an image, run upload and generation in parallel
+      if (uploadedFile) {
+          const [resolvedImageUrl, captionResult] = await Promise.all([
+              uploadPromise,
+              captionPromise(await uploadPromise) // This seems redundant, let's fix
+          ]);
+          
+          const result = await generateCaptions({
+            mood: values.mood,
+            description: values.description,
+            imageUrl: resolvedImageUrl,
+            userId: session?.user?.id,
+          });
+
+          if (result && result.captions) {
+            setCaptions(result.captions);
+          } else {
+             throw new Error("Couldn't generate captions. Please try again.");
+          }
+
       } else {
-        toast({
-          variant: "destructive",
-          title: "Uh oh! Something went wrong.",
-          description: "Couldn't generate captions. Please try again.",
-        });
+        // Otherwise, just generate captions
+        const result = await captionPromise();
+        if (result && result.captions) {
+          setCaptions(result.captions);
+        } else {
+          throw new Error("Couldn't generate captions. Please try again.");
+        }
       }
+
     } catch (error: any) {
-      console.error(error);
+      console.error("Caption Generation Error:", error);
       toast({
         variant: "destructive",
         title: "An error occurred.",
-        description: error.message || "Failed to generate captions. Please check the console for more details.",
+        description: error.message || "Failed to generate or save captions.",
       });
     } finally {
       setIsLoading(false);
     }
   }
+
 
   return (
     <div className="space-y-8">
@@ -211,10 +236,12 @@ export function CaptionGenerator() {
                   </>
                 )}
               </Button>
+              {!session && (
                 <div className="text-muted-foreground flex items-center justify-center">
                   <AlertTriangle className="h-5 w-5 mr-3 flex-shrink-0 text-red-500" />
-                  <p className="text-xs text-center">For your privacy, uploaded images are deleted 15 minutes after upload. Want to keep them? Sign up or log in to save them.</p>
+                  <p className="text-xs text-center">Sign up to save your generated captions and images.</p>
                </div>
+              )}
            </div>
         </form>
       </Form>

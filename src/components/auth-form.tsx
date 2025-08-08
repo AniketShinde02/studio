@@ -68,77 +68,66 @@ export function AuthForm() {
 
   async function onSignUp(values: z.infer<typeof signUpSchema>) {
     setIsLoading(true);
-    // try {
-    //   const response = await fetch('/api/auth/register', {
-    //     method: 'POST',
-    //     headers: { 'Content-Type': 'application/json' },
-    //     body: JSON.stringify(values),
-    //   });
-
-    //   const data = await response.json();
-
-    //   if (!response.ok) {
-    //     throw new Error(data.message || "Something went wrong during sign up");
-    //   }
-      
-    //   toast({
-    //     title: "Account Created! 🎉",
-    //     description: "Your account has been created. Please sign in.",
-    //   });
-    //   setActiveTab("sign-in"); // Switch to sign-in tab
-    //   signInForm.setValue("email", values.email); // Pre-fill email
-
-    // } catch (error: any) {
-    //   toast({
-    //     variant: "destructive",
-    //     title: "Sign Up Failed",
-    //     description: error.message,
-    //   });
-    // } finally {
-    //   setIsLoading(false);
-    // }
-    toast({
-        variant: "destructive",
-        title: "Feature Disabled",
-        description: "Sign-up is temporarily disabled.",
+    try {
+      const response = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(values),
       });
-    setIsLoading(false);
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || "Something went wrong during sign up");
+      }
+      
+      toast({
+        title: "Account Created! 🎉",
+        description: "Your account has been created. Please sign in.",
+      });
+      setActiveTab("sign-in"); // Switch to sign-in tab
+      signInForm.setValue("email", values.email); // Pre-fill email
+
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Sign Up Failed",
+        description: error.message,
+      });
+    } finally {
+      setIsLoading(false);
+    }
   }
 
   async function onSignIn(values: z.infer<typeof signInSchema>) {
     setIsLoading(true);
-    // try {
-    //   const result = await signIn("credentials", {
-    //     redirect: false,
-    //     email: values.email,
-    //     password: values.password,
-    //   });
+    try {
+      const result = await signIn("credentials", {
+        redirect: false,
+        email: values.email,
+        password: values.password,
+      });
 
-    //   if (result?.error) {
-    //     throw new Error("Invalid email or password. Please try again.");
-    //   }
+      if (result?.error) {
+        throw new Error("Invalid email or password. Please try again.");
+      }
       
-    //   setOpen(false);
-    //   toast({
-    //     title: "Signed In! 👋",
-    //     description: "Welcome back! You're now logged in.",
-    //   });
-    //   router.refresh();
-    // } catch (error: any) {
-    //   toast({
-    //     variant: "destructive",
-    //     title: "Sign In Failed",
-    //     description: error.message,
-    //   });
-    // } finally {
-    //   setIsLoading(false);
-    // }
-    toast({
+      setOpen(false);
+      toast({
+        title: "Signed In! 👋",
+        description: "Welcome back! You're now logged in.",
+      });
+      router.push('/profile');
+      router.refresh();
+    } catch (error: any) {
+      toast({
         variant: "destructive",
-        title: "Feature Disabled",
-        description: "Sign-in is temporarily disabled.",
-    });
-    setIsLoading(false);
+        title: "Sign In Failed",
+        description: error.message,
+      });
+    } finally {
+      setIsLoading(false);
+    }
   }
 
   return (

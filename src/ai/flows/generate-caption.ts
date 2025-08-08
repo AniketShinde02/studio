@@ -12,6 +12,7 @@
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 import dbConnect, { getDb } from '@/lib/db';
+import { Types } from 'mongoose';
 
 const GenerateCaptionsInputSchema = z.object({
   mood: z.string().describe('The selected mood for the caption.'),
@@ -22,6 +23,7 @@ const GenerateCaptionsInputSchema = z.object({
       'A description of the photo or video for which to generate captions.'
     ),
   imageUrl: z.string().optional().describe('The URL of the uploaded image.'),
+  userId: z.string().optional().describe("The ID of the user generating the captions."),
 });
 export type GenerateCaptionsInput = z.infer<typeof GenerateCaptionsInputSchema>;
 
@@ -77,8 +79,9 @@ const generateCaptionsFlow = ai.defineFlow(
             
             const postsToInsert = output.captions.map(caption => ({
               caption: caption,
-              image: input.imageUrl, // Will be undefined if no image, which is fine
+              image: input.imageUrl,
               createdAt: new Date(),
+              ...(input.userId && { user: new Types.ObjectId(input.userId) }),
             }));
             
             const result = await postsCollection.insertMany(postsToInsert);
