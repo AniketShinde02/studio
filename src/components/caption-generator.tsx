@@ -116,8 +116,8 @@ export function CaptionGenerator() {
       console.error(error);
       toast({
         variant: "destructive",
-        title: "Uh oh! Something went wrong.",
-        description: error.message || "An error occurred. Please try again.",
+        title: "An error occurred.",
+        description: error.message || "Failed to generate captions. Please check the console for more details.",
       });
     } finally {
       setIsLoading(false);
@@ -211,7 +211,7 @@ export function CaptionGenerator() {
                   </>
                 )}
               </Button>
-               <div className="text-muted-foreground flex items-center justify-center">
+                <div className="text-muted-foreground flex items-center justify-center">
                   <AlertTriangle className="h-5 w-5 mr-3 flex-shrink-0 text-red-500" />
                   <p className="text-xs text-center">For your privacy, uploaded images are deleted 15 minutes after upload. Want to keep them? Sign up or log in to save them.</p>
                </div>

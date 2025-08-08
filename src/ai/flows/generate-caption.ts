@@ -65,21 +65,28 @@ const generateCaptionsFlow = ai.defineFlow(
     outputSchema: GenerateCaptionsOutputSchema,
   },
   async input => {
+    // Ensure DB is connected before doing anything else.
+    await dbConnect();
+
     const {output} = await generateCaptionsPrompt(input);
 
     if (output && output.captions) {
         try {
-            await dbConnect();
+            console.log('Attempting to save posts to database...');
             for (const caption of output.captions) {
                 const newPost = new Post({
                     caption: caption,
                     image: input.imageUrl,
                 });
                 await newPost.save();
+                console.log(`Saved caption: "${caption.substring(0, 30)}..."`);
             }
+            console.log('All posts saved successfully.');
         } catch (error) {
-            console.error('Failed to save posts to database', error);
-            // We don't want to block the user from seeing the captions if DB save fails
+            console.error('CRITICAL: Failed to save posts to database', error);
+            // Re-throw the error to be caught by the client-side fetch.
+            // This ensures the user is notified of the failure.
+            throw new Error('Failed to save captions to the database.');
         }
     }
     
