@@ -4,167 +4,164 @@
 import { useAuthModal } from "@/context/AuthModalContext";
 import { CaptionGenerator } from "@/components/caption-generator";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Sparkles, Bot, Palette, Hash, Pencil, Menu, Copy, Share, RefreshCcw } from "lucide-react";
 import Link from 'next/link';
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { useSession } from "next-auth/react";
+import Image from "next/image";
 
 export default function Home() {
   const { data: session } = useSession();
   const { setOpen } = useAuthModal();
 
-  const handleAuthAction = () => {
+  const handleAuthAction = (action: 'login' | 'signup') => {
     if (!session) {
       setOpen(true);
     }
   };
 
-
   return (
-    <>
-      <div className="min-h-screen flex flex-col font-sans bg-background">
-        <header className="bg-background/80 backdrop-blur-lg sticky top-0 z-50 border-b">
-          <div className="container mx-auto px-6 py-4 flex justify-between items-center">
-            <Link href="/" className="flex items-center gap-3">
-              <div className="bg-gradient-to-br from-primary to-secondary p-2.5 rounded-xl shadow-lg shadow-indigo-500/20">
-                <Sparkles className="h-6 w-6 text-primary-foreground" />
+    <div className="min-h-screen flex flex-col font-sans bg-background text-foreground">
+      <header className="sticky top-0 z-50 w-full bg-background/80 backdrop-blur-sm">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-16">
+            <Link href="/" className="flex items-center gap-2">
+              <div className="bg-primary p-2 rounded-lg">
+                <Sparkles className="h-5 w-5 text-primary-foreground" />
               </div>
-              <h1 className="text-2xl font-bold text-foreground tracking-wide">CaptionCraft</h1>
+              <h1 className="text-xl font-bold tracking-tight">CaptionCraft</h1>
             </Link>
-            <nav className="hidden md:flex items-center gap-10">
-              <Link className="text-base font-medium text-muted-foreground hover:text-primary transition-colors duration-300" href="/#features">Features</Link>
-              <Link className="text-base font-medium text-muted-foreground hover:text-primary transition-colors duration-300" href="/about">About</Link>
-              <Link className="text-base font-medium text-muted-foreground hover:text-primary transition-colors duration-300" href="/contact">Contact</Link>
+            <nav className="hidden md:flex items-center gap-8">
+              <Link className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors" href="#features">Features</Link>
+              <Link className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors" href="/about">About</Link>
+              <Link className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors" href="/contact">Contact</Link>
             </nav>
-            <div className="hidden md:flex items-center gap-4">
-               {session ? (
-                  <Button asChild>
-                    <Link href="/profile">Profile</Link>
-                  </Button>
-                ) : (
-                  <>
-                    <Button variant="ghost" onClick={handleAuthAction} className="text-base font-medium text-muted-foreground hover:text-primary">Log In</Button>
-                    <Button onClick={handleAuthAction}>Sign Up Free</Button>
-                  </>
-                )}
+            <div className="hidden md:flex items-center gap-2">
+              {session ? (
+                <Button asChild>
+                  <Link href="/profile">Dashboard</Link>
+                </Button>
+              ) : (
+                <>
+                  <Button variant="ghost" onClick={() => handleAuthAction('login')} className="text-sm font-medium">Log In</Button>
+                  <Button onClick={() => handleAuthAction('signup')} className="bg-white text-black hover:bg-white/90">Sign Up Free</Button>
+                </>
+              )}
               <ThemeToggle />
             </div>
-             <Sheet>
+            <Sheet>
               <SheetTrigger asChild>
-                <Button variant="ghost" size="icon" className="md:hidden text-muted-foreground">
-                  <Menu className="w-7 h-7" />
+                <Button variant="ghost" size="icon" className="md:hidden">
+                  <Menu className="w-6 h-6" />
                 </Button>
               </SheetTrigger>
-              <SheetContent side="left" className="bg-card border-r">
-                <nav className="flex flex-col gap-6 mt-8 p-4">
-                  <Link className="text-lg font-medium text-muted-foreground hover:text-primary transition-colors duration-300" href="/#features" >Features</Link>
-                  <Link className="text-lg font-medium text-muted-foreground hover:text-primary transition-colors duration-300" href="/about">About</Link>
-                  <Link className="text-lg font-medium text-muted-foreground hover:text-primary transition-colors duration-300" href="/contact">Contact</Link>
-                  <div className="border-t my-4"></div>
-                   {session ? (
-                     <Button variant="ghost" asChild className="text-lg justify-start font-medium text-muted-foreground hover:text-primary">
-                        <Link href="/profile">Profile</Link>
+              <SheetContent side="left" className="bg-background">
+                 <nav className="flex flex-col gap-6 mt-8">
+                  <Link className="text-lg font-medium text-muted-foreground hover:text-foreground" href="/#features">Features</Link>
+                  <Link className="text-lg font-medium text-muted-foreground hover:text-foreground" href="/about">About</Link>
+                  <Link className="text-lg font-medium text-muted-foreground hover:text-foreground" href="/contact">Contact</Link>
+                  <div className="border-t pt-6 mt-2 space-y-4">
+                  {session ? (
+                     <Button asChild className="w-full">
+                        <Link href="/profile">Dashboard</Link>
                      </Button>
                     ) : (
                       <>
-                        <Button variant="ghost" onClick={handleAuthAction} className="text-lg justify-start font-medium text-muted-foreground hover:text-primary">Log In</Button>
-                        <Button onClick={handleAuthAction} className="w-full">Sign Up Free</Button>
+                        <Button variant="ghost" onClick={() => handleAuthAction('login')} className="w-full justify-start text-lg font-medium">Log In</Button>
+                        <Button onClick={() => handleAuthAction('signup')} className="w-full bg-white text-black hover:bg-white/90">Sign Up Free</Button>
                       </>
                     )}
-                    <div className="pt-4">
-                     <ThemeToggle />
-                    </div>
+                  </div>
                 </nav>
               </SheetContent>
             </Sheet>
           </div>
-        </header>
+        </div>
+      </header>
 
-        <main className="flex-grow">
-          <section className="py-28 md:py-40 text-center relative overflow-hidden">
-            <div className="absolute inset-0 bg-grid-slate-800/[0.2] [mask-image:linear-gradient(to_bottom,white_0%,transparent_70%)]"></div>
-            <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-background"></div>
-            <div className="container mx-auto px-6 relative">
-              <h1 className="text-5xl md:text-7xl font-extrabold mb-6 leading-tight tracking-tighter">
-                Generate <span className="gradient-text">Viral Captions</span><br /> in Seconds
-              </h1>
-              <p className="text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto mb-12">
-                Stop guessing. Start impressing. CaptionCraft analyzes your image and generates compelling captions that boost engagement and reflect your unique brand voice.
-              </p>
-              <div className="max-w-5xl mx-auto">
-                <CaptionGenerator />
+      <main className="flex-grow">
+        <section className="py-24 md:py-32 text-center relative overflow-hidden">
+          <div className="absolute inset-0 bg-grid-slate-900/[0.2] [mask-image:linear-gradient(to_bottom,white_0%,transparent_70%)]"></div>
+          <div className="container mx-auto px-4 relative">
+            <h1 className="text-4xl md:text-6xl font-extrabold mb-4 leading-tight tracking-tighter">
+              Generate <span className="gradient-text">Viral Captions</span><br /> in Seconds
+            </h1>
+            <p className="text-base md:text-lg text-muted-foreground max-w-2xl mx-auto mb-10">
+              Stop guessing. Start impressing. CaptionCraft analyzes your image and generates compelling captions that boost engagement and reflect your unique brand voice.
+            </p>
+            <div className="max-w-4xl mx-auto">
+              <CaptionGenerator />
+            </div>
+          </div>
+        </section>
+
+        <section id="features" className="py-24">
+          <div className="container mx-auto px-4">
+            <div className="text-center mb-16">
+              <h2 className="text-3xl md:text-4xl font-bold tracking-tight">The Ultimate Caption Toolkit</h2>
+              <p className="text-muted-foreground mt-3 text-base max-w-xl mx-auto">From hashtags to tone-matching, everything you need for content that connects.</p>
+            </div>
+            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+              <div className="bg-muted/40 p-6 rounded-lg border border-border transition-all hover:border-primary/50 hover:bg-muted">
+                <div className="bg-primary/10 text-primary rounded-lg w-10 h-10 flex items-center justify-center mb-4">
+                  <Bot className="h-5 w-5" />
+                </div>
+                <h3 className="font-bold text-lg mb-2 text-foreground">Contextual AI</h3>
+                <p className="text-sm text-muted-foreground">Our AI understands your image and video content, not just keywords.</p>
+              </div>
+              <div className="bg-muted/40 p-6 rounded-lg border border-border transition-all hover:border-primary/50 hover:bg-muted">
+                <div className="bg-pink-500/10 text-pink-500 rounded-lg w-10 h-10 flex items-center justify-center mb-4">
+                  <Palette className="h-5 w-5" />
+                </div>
+                <h3 className="font-bold text-lg mb-2 text-foreground">Tone Matching</h3>
+                <p className="text-sm text-muted-foreground">Choose a voice that aligns perfectly with your brand identity.</p>
+              </div>
+              <div className="bg-muted/40 p-6 rounded-lg border border-border transition-all hover:border-primary/50 hover:bg-muted">
+                <div className="bg-sky-500/10 text-sky-500 rounded-lg w-10 h-10 flex items-center justify-center mb-4">
+                  <Hash className="h-5 w-5" />
+                </div>
+                <h3 className="font-bold text-lg mb-2 text-foreground">Smart Hashtags</h3>
+                <p className="text-sm text-muted-foreground">Get relevant, trending hashtags to maximize your reach.</p>
+              </div>
+              <div className="bg-muted/40 p-6 rounded-lg border border-border transition-all hover:border-primary/50 hover:bg-muted">
+                <div className="bg-amber-500/10 text-amber-500 rounded-lg w-10 h-10 flex items-center justify-center mb-4">
+                  <Pencil className="h-5 w-5" />
+                </div>
+                <h3 className="font-bold text-lg mb-2 text-foreground">Easy Customization</h3>
+                <p className="text-sm text-muted-foreground">Fine-tune every suggestion to make your captions truly yours.</p>
               </div>
             </div>
-          </section>
+          </div>
+        </section>
 
-          <section id="features" className="py-24 bg-black/20">
-            <div className="container mx-auto px-6">
-              <div className="text-center mb-16">
-                <h2 className="text-4xl md:text-5xl font-bold tracking-tight">The Ultimate Caption Toolkit</h2>
-                <p className="text-muted-foreground mt-4 text-lg max-w-2xl mx-auto">From hashtags to tone-matching, everything you need for content that connects.</p>
+        <section className="py-24">
+            <div className="container mx-auto px-4">
+              <div className="text-center mb-12">
+                <h2 className="text-3xl md:text-4xl font-bold tracking-tight">Your Generated Output</h2>
+                <p className="text-muted-foreground mt-3 text-base max-w-xl mx-auto">See the magic happen. Here’s an example of your new caption and hashtags.</p>
               </div>
-              <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-                <div className="bg-card p-8 rounded-2xl border transform hover:-translate-y-2 transition-transform duration-300 shadow-lg shadow-black/20">
-                  <div className="bg-gradient-to-br from-indigo-500 to-purple-600 text-white rounded-lg w-12 h-12 flex items-center justify-center mb-6 shadow-lg shadow-indigo-500/30">
-                    <Bot className="h-6 w-6" />
-                  </div>
-                  <h3 className="font-bold text-xl mb-3">Contextual AI</h3>
-                  <p className="text-base text-muted-foreground">Our AI understands your image and video content, not just keywords.</p>
-                </div>
-                <div className="bg-card p-8 rounded-2xl border transform hover:-translate-y-2 transition-transform duration-300 shadow-lg shadow-black/20">
-                  <div className="bg-gradient-to-br from-pink-500 to-rose-500 text-white rounded-lg w-12 h-12 flex items-center justify-center mb-6 shadow-lg shadow-pink-500/30">
-                    <Palette className="h-6 w-6" />
-                  </div>
-                  <h3 className="font-bold text-xl mb-3">Tone Matching</h3>
-                  <p className="text-base text-muted-foreground">Choose a voice that aligns perfectly with your brand identity.</p>
-                </div>
-                <div className="bg-card p-8 rounded-2xl border transform hover:-translate-y-2 transition-transform duration-300 shadow-lg shadow-black/20">
-                  <div className="bg-gradient-to-br from-sky-500 to-cyan-500 text-white rounded-lg w-12 h-12 flex items-center justify-center mb-6 shadow-lg shadow-sky-500/30">
-                    <Hash className="h-6 w-6" />
-                  </div>
-                  <h3 className="font-bold text-xl mb-3">Smart Hashtags</h3>
-                  <p className="text-base text-muted-foreground">Get relevant, trending hashtags to maximize your reach.</p>
-                </div>
-                <div className="bg-card p-8 rounded-2xl border transform hover:-translate-y-2 transition-transform duration-300 shadow-lg shadow-black/20">
-                  <div className="bg-gradient-to-br from-amber-500 to-orange-500 text-white rounded-lg w-12 h-12 flex items-center justify-center mb-6 shadow-lg shadow-amber-500/30">
-                    <Pencil className="h-6 w-6" />
-                  </div>
-                  <h3 className="font-bold text-xl mb-3">Easy Customization</h3>
-                  <p className="text-base text-muted-foreground">Fine-tune every suggestion to make your captions truly yours.</p>
-                </div>
-              </div>
-            </div>
-          </section>
-
-          <section className="py-24">
-            <div className="container mx-auto px-6">
-              <div className="text-center mb-16">
-                <h2 className="text-4xl md:text-5xl font-bold tracking-tight">Your Generated Output</h2>
-                <p className="text-muted-foreground mt-4 text-lg max-w-2xl mx-auto">See the magic happen. Here’s an example of your new caption and hashtags.</p>
-              </div>
-              <div className="bg-gradient-to-br from-card to-muted/60 rounded-2xl shadow-2xl shadow-black/30 p-8 md:p-12 max-w-5xl mx-auto border">
-                <div className="grid md:grid-cols-3 gap-8 items-center">
+              <div className="bg-muted/20 rounded-lg shadow-lg p-6 md:p-8 max-w-3xl mx-auto border border-border">
+                <div className="grid md:grid-cols-3 gap-6 items-center">
                   <div className="md:col-span-2">
-                    <p className="text-lg md:text-xl text-foreground/90 leading-relaxed mb-6 font-medium">
+                    <p className="text-base text-foreground/90 leading-relaxed mb-4">
                       Chasing horizons and embracing the glow. ✨ Every sunset paints a story of gratitude and wonder. Couldn't ask for a better view to end the day.
                     </p>
-                    <div className="bg-muted/50 p-4 rounded-lg border">
-                      <p className="text-muted-foreground font-mono text-sm">#SunsetVibes #GoldenHourGlow #NaturePerfection #WanderlustLife #ChasingLight #MomentOfPeace</p>
+                    <div className="bg-background/50 p-3 rounded-md border border-border/50">
+                      <p className="text-muted-foreground font-mono text-xs">#SunsetVibes #GoldenHourGlow #NaturePerfection #WanderlustLife #ChasingLight #MomentOfPeace</p>
                     </div>
                   </div>
-                  <div className="md:col-span-1 flex flex-col gap-4">
-                    <Button className="flex items-center justify-center gap-2 w-full !rounded-lg">
-                      <Copy className="w-4 h-4" />
+                  <div className="md:col-span-1 flex flex-col gap-2">
+                    <Button size="sm" className="w-full">
+                      <Copy className="w-3.5 h-3.5" />
                       Copy
                     </Button>
-                    <Button variant="secondary" className="flex items-center justify-center gap-2 w-full !rounded-lg bg-pink-500/20 border-pink-500/50 hover:bg-pink-500/30 text-white">
-                      <Share className="w-4 h-4"/>
+                    <Button size="sm" variant="secondary" className="w-full bg-pink-500/20 border-pink-500/0 hover:bg-pink-500/30 text-white">
+                      <Share className="w-3.5 h-3.5"/>
                       Share
                     </Button>
-                    <Button variant="secondary" className="flex items-center justify-center gap-2 w-full !rounded-lg">
-                      <RefreshCcw className="w-4 h-4"/>
+                    <Button size="sm" variant="secondary" className="w-full">
+                      <RefreshCcw className="w-3.5 h-3.5"/>
                       Regenerate
                     </Button>
                   </div>
@@ -172,55 +169,55 @@ export default function Home() {
               </div>
             </div>
           </section>
-        </main>
+      </main>
 
-        <footer className="bg-muted/70 border-t">
-          <div className="container mx-auto px-6 py-12">
-            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-12">
-              <div className="col-span-full lg:col-span-1">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="bg-gradient-to-br from-primary to-secondary p-2.5 rounded-xl">
-                    <Sparkles className="h-6 w-6 text-primary-foreground" />
-                  </div>
-                  <h1 className="text-2xl font-bold text-foreground">CaptionCraft</h1>
+      <footer className="border-t border-border/50">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            <div className="col-span-12 lg:col-span-3">
+               <Link href="/" className="flex items-center gap-2 mb-2">
+                <div className="bg-primary p-2 rounded-lg">
+                  <Sparkles className="h-5 w-5 text-primary-foreground" />
                 </div>
-                <p className="text-muted-foreground text-sm max-w-xs">The future of social media content creation, powered by AI.</p>
-              </div>
-              <div>
-                <h3 className="font-semibold text-foreground/90 mb-4 tracking-wider uppercase text-sm">Product</h3>
-                <nav className="flex flex-col gap-3">
-                  <Link className="text-muted-foreground hover:text-primary transition-colors duration-200" href="/#features">Features</Link>
-                  <Link className="text-muted-foreground hover:text-primary transition-colors duration-200" href="/about">About</Link>
-                  <Link className="text-muted-foreground hover:text-primary transition-colors duration-200" href="/contact">Contact</Link>
-                </nav>
-              </div>
-              <div>
-                <h3 className="font-semibold text-foreground/90 mb-4 tracking-wider uppercase text-sm">Company</h3>
-                <nav className="flex flex-col gap-3">
-                  <Link className="text-muted-foreground hover:text-primary transition-colors duration-200" href="/about">About Us</Link>
-                  <Link className="text-muted-foreground hover:text-primary transition-colors duration-200" href="#">Blog</Link>
-                  <Link className="text-muted-foreground hover:text-primary transition-colors duration-200" href="#">Careers</Link>
-                </nav>
-              </div>
-              <div className="col-span-full md:col-span-2 lg:col-span-1">
-                <h3 className="font-semibold text-foreground/90 mb-4 tracking-wider uppercase text-sm">Join Our Newsletter</h3>
-                <p className="text-sm text-muted-foreground mb-4">Get weekly insights and product updates.</p>
-                <div className="flex flex-col sm:flex-row gap-2">
-                  <Input className="w-full h-12 px-4 rounded-lg border bg-muted text-foreground focus:ring-2 focus:ring-offset-2 focus:ring-offset-muted focus:ring-primary focus:border-primary transition-all duration-300" placeholder="your@email.com" type="email" />
-                  <Button className="h-12 shrink-0">Subscribe</Button>
-                </div>
-              </div>
+                <h1 className="text-xl font-bold tracking-tight">CaptionCraft</h1>
+              </Link>
+              <p className="text-muted-foreground text-sm">The future of social media content creation, powered by AI.</p>
             </div>
-            <div className="mt-12 pt-8 border-t flex flex-col sm:flex-row justify-between items-center text-sm">
-              <p className="text-muted-foreground">© 2024 CaptionCraft. All rights reserved.</p>
-              <div className="flex gap-6 mt-4 sm:mt-0">
-                <Link className="text-muted-foreground hover:text-primary transition-colors duration-200" href="/terms">Terms</Link>
-                <Link className="text-muted-foreground hover:text-primary transition-colors duration-200" href="/privacy">Privacy Policy</Link>
+            <div className="col-span-12 lg:col-span-9 grid grid-cols-2 md:grid-cols-4 gap-8">
+               <div>
+                <h3 className="font-semibold text-foreground mb-4 text-sm">Product</h3>
+                <nav className="flex flex-col gap-3">
+                  <Link className="text-sm text-muted-foreground hover:text-primary transition-colors" href="#features">Features</Link>
+                  <Link className="text-sm text-muted-foreground hover:text-primary transition-colors" href="/about">About</Link>
+                  <Link className="text-sm text-muted-foreground hover:text-primary transition-colors" href="/contact">Contact</Link>
+                </nav>
+              </div>
+               <div>
+                <h3 className="font-semibold text-foreground mb-4 text-sm">Company</h3>
+                <nav className="flex flex-col gap-3">
+                  <Link className="text-sm text-muted-foreground hover:text-primary transition-colors" href="/about">About Us</Link>
+                  <Link className="text-sm text-muted-foreground hover:text-primary transition-colors" href="#">Blog</Link>
+                  <Link className="text-sm text-muted-foreground hover:text-primary transition-colors" href="#">Careers</Link>
+                </nav>
+              </div>
+               <div>
+                <h3 className="font-semibold text-foreground mb-4 text-sm">Legal</h3>
+                <nav className="flex flex-col gap-3">
+                  <Link className="text-sm text-muted-foreground hover:text-primary transition-colors" href="/terms">Terms</Link>
+                  <Link className="text-sm text-muted-foreground hover:text-primary transition-colors" href="/privacy">Privacy Policy</Link>
+                </nav>
               </div>
             </div>
           </div>
-        </footer>
-      </div>
-    </>
+          <div className="mt-8 border-t border-border/50 pt-8 flex flex-col sm:flex-row justify-between items-center text-sm text-muted-foreground">
+            <p>&copy; 2024 CaptionCraft. All rights reserved.</p>
+             <div className="flex gap-6 mt-4 sm:mt-0">
+                <Link className="text-muted-foreground hover:text-primary transition-colors" href="/terms">Terms</Link>
+                <Link className="text-muted-foreground hover:text-primary transition-colors" href="/privacy">Privacy Policy</Link>
+              </div>
+          </div>
+        </div>
+      </footer>
+    </div>
   );
 }

@@ -12,8 +12,8 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: 'Caption Generator',
-  description: 'Unleash viral captions in seconds—made for Gen Z.',
+  title: 'CaptionCraft',
+  description: 'Generate Viral Captions in Seconds.',
 };
 
 export default function RootLayout({
@@ -22,8 +22,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning className={inter.variable}>
-      <body className="font-sans antialiased">
+    <html lang="en" className='dark' suppressHydrationWarning>
+      <body className={`${inter.variable} font-sans antialiased`}>
         <Providers>
           <AuthModal />
           {children}

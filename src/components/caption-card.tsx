@@ -1,9 +1,9 @@
+
 "use client";
 
 import { useState, useEffect } from 'react';
 import { Check, Copy } from 'lucide-react';
 
-import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 
@@ -34,30 +34,30 @@ export function CaptionCard({ caption }: CaptionCardProps) {
   }, [copied]);
 
   return (
-    <Card className="group bg-card shadow-md hover:shadow-lg hover:shadow-primary/20 transition-all duration-300 rounded-xl flex flex-col justify-between min-h-[150px] border">
-      <CardContent className="p-4 flex-grow">
-        <p className="text-card-foreground/90">{caption}</p>
-      </CardContent>
-      <CardFooter className="p-4 pt-0">
+    <div className="group bg-muted/40 transition-all duration-300 rounded-lg flex flex-col justify-between min-h-[150px] border border-border hover:border-primary/50">
+      <div className="p-4 flex-grow">
+        <p className="text-foreground/90 text-sm">{caption}</p>
+      </div>
+      <div className="p-2 border-t border-border/50">
         <Button
           onClick={handleCopy}
           variant="ghost"
           size="sm"
-          className="w-full text-primary hover:bg-primary/10 hover:text-primary"
+          className="w-full text-muted-foreground hover:bg-primary/10 hover:text-primary"
         >
           {copied ? (
             <>
-              <Check className="mr-2 h-4 w-4" />
+              <Check className="mr-2 h-4 w-4 text-green-500" />
               Copied!
             </>
           ) : (
             <>
               <Copy className="mr-2 h-4 w-4" />
-              Copy Caption
+              Copy
             </>
           )}
         </Button>
-      </CardFooter>
-    </Card>
+      </div>
+    </div>
   );
 }
