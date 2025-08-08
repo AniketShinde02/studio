@@ -11,8 +11,9 @@
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
-import dbConnect, { getDb } from '@/lib/db';
+import dbConnect from '@/lib/db';
 import { Types } from 'mongoose';
+import { clientPromise } from '@/lib/db';
 
 const GenerateCaptionsInputSchema = z.object({
   mood: z.string().describe('The selected mood for the caption.'),
@@ -70,11 +71,11 @@ const generateCaptionsFlow = ai.defineFlow(
 
     if (output && output.captions) {
         try {
-            // Ensure DB is connected before trying to write.
             await dbConnect();
-            const db = getDb();
+            const client = await clientPromise;
+            const db = client.db();
             const postsCollection = db.collection('posts');
-
+            
             console.log('Attempting to save posts to database...');
             
             const postsToInsert = output.captions.map(caption => ({

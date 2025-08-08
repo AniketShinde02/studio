@@ -1,8 +1,7 @@
 
 import 'dotenv/config';
-import mongoose, { Mongoose, Db } from 'mongoose';
-import { MongoClient, Db as MongoDb } from 'mongodb';
-
+import mongoose, { Mongoose } from 'mongoose';
+import { MongoClient } from 'mongodb';
 
 const MONGODB_URI = process.env.MONGODB_URI;
 
@@ -19,10 +18,17 @@ if (!MONGODB_URI) {
  * during API Route usage.
  */
 let cached = (global as any).mongoose;
+let cachedClient = (global as any).mongoClient;
+
 
 if (!cached) {
   cached = (global as any).mongoose = { conn: null, promise: null };
 }
+
+if (!cachedClient) {
+    cachedClient = (global as any).mongoClient = { client: null, promise: null };
+}
+
 
 async function dbConnect(): Promise<Mongoose> {
   if (cached.conn) {
@@ -34,7 +40,7 @@ async function dbConnect(): Promise<Mongoose> {
       bufferCommands: false,
     };
     
-    console.log('Attempting to connect to MongoDB...');
+    console.log('Attempting to connect to MongoDB with Mongoose...');
     cached.promise = mongoose.connect(MONGODB_URI!, opts).then((mongoose) => {
       console.log('New Mongoose connection established.');
       return mongoose;
@@ -55,13 +61,24 @@ async function dbConnect(): Promise<Mongoose> {
   return cached.conn;
 }
 
-export function getDb(): MongoDb {
-    if (!cached.conn) {
-        throw new Error('Database not connected. Call dbConnect first.');
-    }
-    // Mongoose connection object has a `db` property which is the native driver's Db object
-    return cached.conn.connection.db;
+// Export a module-scoped MongoClient promise. By doing this in a
+// separate module, the client can be shared across functions.
+let client: MongoClient;
+let clientPromise: Promise<MongoClient>;
+
+if (process.env.NODE_ENV === 'development') {
+  // In development mode, use a global variable so that the value
+  // is preserved across module reloads caused by HMR (Hot Module Replacement).
+  if (!cachedClient.promise) {
+    client = new MongoClient(MONGODB_URI);
+    cachedClient.promise = client.connect();
+  }
+  clientPromise = cachedClient.promise;
+} else {
+  // In production mode, it's best to not use a global variable.
+  client = new MongoClient(MONGODB_URI);
+  clientPromise = client.connect();
 }
 
-
+export { clientPromise };
 export default dbConnect;

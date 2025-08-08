@@ -1,12 +1,14 @@
 
 import type {NextAuthOptions} from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
-import dbConnect from '@/lib/db';
+import dbConnect, { clientPromise } from '@/lib/db';
 import User from '@/models/User';
 import bcrypt from 'bcryptjs';
-import { Types } from 'mongoose';
+import { MongoDBAdapter } from '@auth/mongodb-adapter';
+import { Adapter } from 'next-auth/adapters';
 
 export const authOptions: NextAuthOptions = {
+  adapter: MongoDBAdapter(clientPromise) as Adapter,
   providers: [
     CredentialsProvider({
       name: 'Credentials',
@@ -22,12 +24,10 @@ export const authOptions: NextAuthOptions = {
         
         try {
           await dbConnect();
-          console.log('Auth: DB connected.');
         } catch (error) {
           console.error('Auth Error: DB connection failed.', error);
           return null;
         }
-
 
         const user = await User.findOne({ email: credentials.email }).select('+password');
 
@@ -53,18 +53,17 @@ export const authOptions: NextAuthOptions = {
         
         console.log('Auth success for:', credentials.email);
         
-        // Convert to a plain object to ensure it's serializable
-        const userObject = user.toObject();
-        // IMPORTANT: Never return the password hash
-        delete userObject.password;
-        
-        return userObject;
+        // Return a plain object, not a Mongoose document.
+        return {
+          id: user._id.toString(),
+          email: user.email,
+          createdAt: user.createdAt,
+        };
       },
     }),
   ],
   pages: {
     signIn: '/',
-    error: '/api/auth/error', // This is a default error page, we can customize it
   },
   session: {
     strategy: 'jwt',
@@ -72,20 +71,17 @@ export const authOptions: NextAuthOptions = {
   secret: process.env.NEXTAUTH_SECRET,
   callbacks: {
     async jwt({ token, user }) {
-      // This is called first, on sign-in user is passed.
+      // On sign-in, user object is passed.
       if (user) {
-        token.id = (user as any)._id.toString();
-        token.email = user.email;
+        token.id = user.id;
         token.createdAt = (user as any).createdAt;
       }
       return token;
     },
     async session({ session, token }) {
-      // The session callback is called whenever a session is checked.
-      // We transfer the id from the token to the session object.
+      // Pass the user ID from the token to the session object
       if (token && session.user) {
         session.user.id = token.id as string;
-        session.user.email = token.email as string;
         (session.user as any).createdAt = token.createdAt;
       }
       return session;

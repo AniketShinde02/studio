@@ -3,7 +3,6 @@ import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
 
 const UserSchema = new mongoose.Schema({
-  name: String,
   email: {
     type: String,
     required: [true, 'Please provide an email.'],
