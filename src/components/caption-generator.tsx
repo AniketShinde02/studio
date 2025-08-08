@@ -132,7 +132,7 @@ export function CaptionGenerator() {
                        <Image
                           src={imagePreview}
                           alt="Uploaded preview"
-                          layout="fill"
+                          fill
                           objectFit="cover"
                         />
                     </div>
@@ -185,7 +185,7 @@ export function CaptionGenerator() {
             </div>
           </div>
           
-           <div className="flex flex-col items-center gap-2">
+           <div className="flex flex-col items-center gap-4">
               <Button type="submit" disabled={isLoading} size="lg" className="w-full max-w-sm font-semibold rounded-lg transition-all duration-300 transform hover:scale-105 active:scale-100 shadow-lg shadow-primary/20 hover:shadow-primary/40">
                 {isLoading ? (
                   <>
@@ -199,9 +199,17 @@ export function CaptionGenerator() {
                   </>
                 )}
               </Button>
-              <div className="flex items-center text-xs text-muted-foreground">
-                <AlertTriangle className="h-3 w-3 mr-1.5" />
-                <p>Uploaded images are NOT stored permanently.</p>
+              <div className="relative w-full max-w-2xl mx-auto overflow-hidden bg-red-900/20 text-red-400 rounded-lg p-2 border border-red-900/30">
+                <div className="flex animate-marquee whitespace-nowrap">
+                   <div className="flex items-center mx-4">
+                      <AlertTriangle className="h-4 w-4 mr-2 flex-shrink-0" />
+                      <p className="text-xs">For your privacy, uploaded images are deleted 15 minutes after upload. Want to keep them? Sign up or log in to save them.</p>
+                   </div>
+                   <div className="flex items-center mx-4">
+                      <AlertTriangle className="h-4 w-4 mr-2 flex-shrink-0" />
+                      <p className="text-xs">For your privacy, uploaded images are deleted 15 minutes after upload. Want to keep them? Sign up or log in to save them.</p>
+                   </div>
+                </div>
               </div>
            </div>
         </form>
