@@ -15,7 +15,7 @@ export default function Home() {
   const { data: session } = useSession();
   const { setOpen } = useAuthModal();
 
-  const handleAuthAction = (action: 'login' | 'signup') => {
+  const handleAuthAction = () => {
     if (!session) {
       setOpen(true);
     }
@@ -44,8 +44,7 @@ export default function Home() {
                 </Button>
               ) : (
                 <>
-                  <Button variant="ghost" onClick={() => handleAuthAction('login')} className="text-sm font-medium">Log In</Button>
-                  <Button onClick={() => handleAuthAction('signup')} className="bg-white text-black hover:bg-white/90">Sign Up Free</Button>
+                  <Button onClick={handleAuthAction} className="bg-white text-black hover:bg-white/90">Sign Up Free</Button>
                 </>
               )}
               <ThemeToggle />
@@ -68,8 +67,7 @@ export default function Home() {
                      </Button>
                     ) : (
                       <>
-                        <Button variant="ghost" onClick={() => handleAuthAction('login')} className="w-full justify-start text-lg font-medium">Log In</Button>
-                        <Button onClick={() => handleAuthAction('signup')} className="w-full bg-white text-black hover:bg-white/90">Sign Up Free</Button>
+                        <Button onClick={handleAuthAction} className="w-full bg-white text-black hover:bg-white/90">Sign Up Free</Button>
                       </>
                     )}
                   </div>
