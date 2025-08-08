@@ -18,6 +18,7 @@ const PostSchema: Schema = new Schema({
   user: {
     type: Schema.Types.ObjectId,
     ref: 'User',
+    required: false, // Explicitly make it optional
   },
   createdAt: {
     type: Date,
