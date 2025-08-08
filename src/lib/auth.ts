@@ -38,6 +38,7 @@ export const authOptions: NextAuthOptions = {
           throw new Error('Incorrect password');
         }
         
+        // Return a plain object, not a Mongoose document
         return {
           id: user._id.toString(),
           email: user.email,
