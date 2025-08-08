@@ -58,15 +58,6 @@ export function CaptionGenerator() {
   };
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    if (!uploadedFile && !values.description) {
-      toast({
-        variant: "destructive",
-        title: "Hold up!",
-        description: "Please upload an image or describe it to generate captions.",
-      });
-      return;
-    }
-
     setIsLoading(true);
     setCaptions([]);
     let imageUrl = '';
@@ -196,7 +187,7 @@ export function CaptionGenerator() {
                   </>
                 )}
               </Button>
-               <div className="w-full max-w-2xl mx-auto bg-muted/40 text-muted-foreground rounded-lg p-3 border border-border flex items-center justify-center">
+               <div className="text-muted-foreground flex items-center justify-center">
                   <AlertTriangle className="h-5 w-5 mr-3 flex-shrink-0 text-red-500" />
                   <p className="text-xs text-center">For your privacy, uploaded images are deleted 15 minutes after upload. Want to keep them? Sign up or log in to save them.</p>
                </div>
