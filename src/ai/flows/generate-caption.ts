@@ -11,9 +11,7 @@
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
-import dbConnect from '@/lib/db';
-import Post from '@/models/Post';
-
+import dbConnect, { getDb } from '@/lib/db';
 
 const GenerateCaptionsInputSchema = z.object({
   mood: z.string().describe('The selected mood for the caption.'),
@@ -65,22 +63,30 @@ const generateCaptionsFlow = ai.defineFlow(
     outputSchema: GenerateCaptionsOutputSchema,
   },
   async input => {
-    // Ensure DB is connected before doing anything else.
-    await dbConnect();
-
+    // First, generate the captions with the AI
     const {output} = await generateCaptionsPrompt(input);
 
     if (output && output.captions) {
         try {
+            // Ensure DB is connected before trying to write.
+            await dbConnect();
+            const db = getDb();
+            const postsCollection = db.collection('posts');
+
             console.log('Attempting to save posts to database...');
-            for (const caption of output.captions) {
-                const newPost = new Post({
-                    caption: caption,
-                    image: input.imageUrl,
-                });
-                await newPost.save();
-                console.log(`Saved caption: "${caption.substring(0, 30)}..."`);
+            
+            const postsToInsert = output.captions.map(caption => ({
+              caption: caption,
+              image: input.imageUrl, // Will be undefined if no image, which is fine
+              createdAt: new Date(),
+            }));
+            
+            const result = await postsCollection.insertMany(postsToInsert);
+
+            if (result.insertedCount !== 3) {
+                 throw new Error(`Expected to insert 3 posts, but only inserted ${result.insertedCount}.`);
             }
+
             console.log('All posts saved successfully.');
         } catch (error) {
             console.error('CRITICAL: Failed to save posts to database', error);

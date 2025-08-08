@@ -1,6 +1,8 @@
 
 import 'dotenv/config';
-import mongoose, { Mongoose } from 'mongoose';
+import mongoose, { Mongoose, Db } from 'mongoose';
+import { MongoClient, Db as MongoDb } from 'mongodb';
+
 
 const MONGODB_URI = process.env.MONGODB_URI;
 
@@ -52,5 +54,14 @@ async function dbConnect(): Promise<Mongoose> {
   
   return cached.conn;
 }
+
+export function getDb(): MongoDb {
+    if (!cached.conn) {
+        throw new Error('Database not connected. Call dbConnect first.');
+    }
+    // Mongoose connection object has a `db` property which is the native driver's Db object
+    return cached.conn.connection.db;
+}
+
 
 export default dbConnect;
