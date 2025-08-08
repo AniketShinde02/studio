@@ -21,7 +21,6 @@ import { generateCaptions } from "@/ai/flows/generate-caption";
 import { CaptionCard } from "./caption-card";
 import { useToast } from "@/hooks/use-toast";
 import { Textarea } from "./ui/textarea";
-import { useAuthModal } from "@/context/AuthModalContext";
 
 const formSchema = z.object({
   description: z.string().min(1, { message: "Please describe your image or vibe." }),
@@ -31,8 +30,6 @@ const formSchema = z.object({
 const moods = ["😎 Casual", "😂 Funny", "🤩 Excited", "🤔 Thoughtful", "👔 Professional", "💖 Romantic"];
 
 export function CaptionGenerator() {
-  const { data: session } = useSession();
-  const { setOpen: openAuthModal } = useAuthModal();
   const [captions, setCaptions] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [selectedMood, setSelectedMood] = useState<string | null>(null);
@@ -199,18 +196,10 @@ export function CaptionGenerator() {
                   </>
                 )}
               </Button>
-              <div className="relative w-full max-w-2xl mx-auto overflow-hidden bg-red-900/20 text-red-400 rounded-lg p-2 border border-red-900/30">
-                <div className="flex animate-marquee whitespace-nowrap">
-                   <div className="flex items-center mx-4">
-                      <AlertTriangle className="h-4 w-4 mr-2 flex-shrink-0" />
-                      <p className="text-xs">For your privacy, uploaded images are deleted 15 minutes after upload. Want to keep them? Sign up or log in to save them.</p>
-                   </div>
-                   <div className="flex items-center mx-4">
-                      <AlertTriangle className="h-4 w-4 mr-2 flex-shrink-0" />
-                      <p className="text-xs">For your privacy, uploaded images are deleted 15 minutes after upload. Want to keep them? Sign up or log in to save them.</p>
-                   </div>
-                </div>
-              </div>
+               <div className="w-full max-w-2xl mx-auto bg-muted/40 text-muted-foreground rounded-lg p-3 border border-border flex items-center justify-center">
+                  <AlertTriangle className="h-5 w-5 mr-3 flex-shrink-0 text-red-500" />
+                  <p className="text-xs text-center">For your privacy, uploaded images are deleted 15 minutes after upload. Want to keep them? Sign up or log in to save them.</p>
+               </div>
            </div>
         </form>
       </Form>
